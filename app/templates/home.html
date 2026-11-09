@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Briefings · NewsForMe{% endblock %}
+{% block content %}
+<section class="card">
+  <h1>Hello{% if profile.display_name %}, {{ profile.display_name }}{% endif %}</h1>
+  <p class="muted">
+    Tracking <strong>{{ profile.keywords | length }}</strong> topics in
+    {{ profile.field or "your field" }} over a
+    <strong>{{ profile.lookback_days }}-day</strong> window.
+  </p>
+  <div class="chips">
+    {% for k in profile.keywords %}<span class="chip">{{ k }}</span>{% endfor %}
+  </div>
+
+  <form method="post" action="/briefing/new" class="inline-form">
+    <button type="submit" class="btn btn-primary"
+      onclick="window.posthog && posthog.capture('generated_briefing')">
+      Generate this week's briefing
+    </button>
+    <span class="hint">Fetches arXiv + Crossref, ranks against your profile. Takes 5&ndash;30s.</span>
+  </form>
+</section>
+
+<section class="card">
+  <h2>Past briefings</h2>
+  {% if briefings %}
+  <table class="table">
+    <thead>
+      <tr><th>#</th><th>Generated</th><th>Papers</th><th>From candidates</th><th>Ranked by</th></tr>
+    </thead>
+    <tbody>
+      {% for b in briefings %}
+      <tr>
+        <td><a href="/briefing/{{ b.id }}">{{ b.id }}</a></td>
+        <td>{{ b.created_at }}</td>
+        <td>{{ b.item_count }}</td>
+        <td>{{ b.candidate_count }}</td>
+        <td><code>{{ b.model_used }}</code></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="muted">No briefings yet. Generate your first one above.</p>
+  {% endif %}
+
+  {% if feedback %}
+  <p class="muted">
+    Feedback so far:
+    {{ feedback.get('useful', 0) }} useful / {{ feedback.get('not_useful', 0) }} not useful.
+  </p>
+  {% endif %}
+</section>
+{% endblock %}

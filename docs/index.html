@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>[Your Product Name] · Building with AI (Fall 2026)</title>
+  <title>NewsForMe · Building with AI (Fall 2026)</title>
 
   <!-- Week 1: create your PostHog account only.
        Build 2: paste your project's current PostHog web snippet here,
@@ -137,126 +137,317 @@
       font-size: 13px;
       color: var(--muted);
     }
+    .shot {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin: 10px 0 6px;
+      display: block;
+    }
+    .caption { font-size: 13px; color: var(--muted); margin: 0 0 18px; }
+    .callout {
+      border-left: 3px solid var(--accent);
+      background: var(--bg);
+      padding: 12px 16px;
+      border-radius: 0 8px 8px 0;
+      margin: 14px 0;
+    }
+    .callout-warn { border-left-color: #f59e0b; background: #fffbeb; }
+    .todo { background: #fef3c7; padding: 1px 6px; border-radius: 4px; font-size: 13px; }
+    table.tbl { width: 100%; border-collapse: collapse; font-size: 14px; margin: 10px 0; }
+    table.tbl th, table.tbl td {
+      text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    table.tbl th { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .9em;
+           background: #f3f4f6; padding: 1px 5px; border-radius: 4px; }
   </style>
 </head>
 <body>
   <div class="container">
     <!-- HERO / PRODUCT PITCH -->
     <header>
-      <span class="eyebrow">NYU Stern · Building with AI · Fall 2026</span>
-      <h1>[Your Product Name]</h1>
-      <p class="tagline">[One clear sentence: Who is this for, and what painful job does it do for them?]</p>
+      <span class="eyebrow">NYU Stern &middot; Building with AI &middot; Fall 2026</span>
+      <h1>NewsForMe</h1>
+      <p class="tagline">
+        A weekly research briefing for PhD candidates: it reads the week&rsquo;s new
+        papers across arXiv and the journals, keeps the handful that actually touch
+        your dissertation, and tells you in one line why each one is yours.
+      </p>
+      <p class="meta">
+        <strong>Builder:</strong> Piyush Muraleedharan (<code>@PiyushM101</code>) &middot;
+        <strong>Repo:</strong>
+        <a href="https://github.com/building-with-ai-f26/pm4053-NewsForMe">pm4053-NewsForMe</a>
+      </p>
       <div class="cta-row">
-        <a class="btn" href="#live-demo" onclick="window.posthog && posthog.capture('clicked_try_product')">See the Product →</a>
+        <a class="btn" href="#live-demo" onclick="window.posthog &amp;&amp; posthog.capture('clicked_try_product')">See the Product &rarr;</a>
         <a class="btn btn-secondary" href="#prd">Read the Living PRD</a>
         <a class="btn btn-secondary" href="#build-log">Weekly Build Log</a>
       </div>
     </header>
 
-    <!-- DEMO / SCREENSHOT / VIDEO SHOWCASE -->
+    <!-- DEMO / SCREENSHOT -->
     <section id="live-demo">
-      <h2>Product Showcase (Prototype / Live App / 2-Min Video)</h2>
+      <h2>Product Showcase</h2>
       <p>
-        <strong>Current Status:</strong> [Build 1: local prototype / Builds 2–4: local app / Build 5: cloud app]<br />
-        <strong>Demo:</strong> [Add a screenshot or GIF now; add the live cloud app URL in Build 5.]
+        <strong>Current status:</strong> Build 1 &mdash; working local prototype
+        (FastAPI + SQLite, runs at <code>http://localhost:8000</code>).<br />
+        <strong>Cloud URL:</strong> not yet; the app stays local through Week 4 and
+        gets deployed in Build 5.
       </p>
-      <p class="meta">
-        Ask your coding agent to embed a screenshot or GIF of your local prototype for Build 1. Keep this evidence current, then add your cloud app link and two-minute video in Build 5.
+
+      <img class="shot" src="img/briefing.jpg"
+           alt="A generated NewsForMe briefing. The top paper is a PNAS article on vitrification in cryo-EM, with a 'Why you' line explaining it matches the tracked topics cryo-EM and molecular dynamics." />
+      <p class="caption">
+        A real briefing generated on 9 Nov 2026 for a test profile in computational
+        structural biology. 8 papers kept from 20 candidates in 7.3 seconds. Every
+        paper carries a &ldquo;Why you&rdquo; line and an expandable score breakdown.
+      </p>
+
+      <img class="shot" src="img/home.jpg"
+           alt="The NewsForMe home screen showing the researcher's tracked topics as chips and a button to generate the week's briefing." />
+      <p class="caption">
+        The home screen. Tracked topics drive everything; one button runs the whole
+        workflow. The orange banner is honest about running without a model key.
       </p>
     </section>
 
-    <!-- LIVING PRD (Updated every week!) -->
+    <!-- LIVING PRD -->
     <section id="prd">
       <h2>Living PRD (Product Requirements Document)</h2>
-      <p class="meta">Updated every week as we test with real users and learn what works.</p>
+      <p class="meta">v1 &mdash; Build 1, 9 Nov 2026. Updated every week as real users test it.</p>
 
-      <h3>1. Target User & The Job to Be Done</h3>
-      <p><strong>Who is this for?</strong> [Name a specific, reachable person or role you have direct access to.]</p>
-      <p><strong>The painful "Before" workflow:</strong> [How do they do this today, and why is it slow, manual, or broken?]</p>
-      <p><strong>The "After" workflow with this product:</strong> [What does your tool do for them in one sitting?]</p>
+      <h3>1. Target User &amp; The Job to Be Done</h3>
+      <p>
+        <strong>Who is this for?</strong> PhD candidates who are responsible for
+        knowing what was published in their field this week &mdash; the ones whose
+        advisor opens a meeting with &ldquo;did you see the new paper?&rdquo;
+        <span class="todo">To fill in: name the 2&ndash;3 specific PhD students you
+        will hand this to, and how you reach them.</span>
+      </p>
+      <p>
+        <strong>The painful &ldquo;Before&rdquo; workflow:</strong> Google Scholar
+        alerts, a few journal table-of-contents emails and an arXiv feed all land in
+        one inbox. They are keyword alerts, so they fire on any paper containing the
+        word, and the student skims dozens of titles to find the two that matter.
+        Most weeks the triage gets skipped, and the paper surfaces later in a meeting
+        instead.
+      </p>
+      <p>
+        <strong>The &ldquo;After&rdquo; workflow:</strong> Open NewsForMe, click once,
+        and get a ranked briefing of up to eight papers from the chosen window. Each
+        entry says which of your tracked topics it hit, where it was published, and
+        why you specifically should read it. Mark papers useful or not useful to tune
+        future briefings. Target: under ten minutes, once a week.
+      </p>
 
-      <h3>2. Scope & Explicit Non-Goals</h3>
+      <h3>2. Scope &amp; Explicit Non-Goals</h3>
       <ul>
-        <li><strong>In Scope (Core Workflow):</strong> [The 1 main workflow this product does reliably]</li>
-        <li><strong>Out of Scope #1:</strong> [Feature you are deliberately NOT building in 6 weeks]</li>
-        <li><strong>Out of Scope #2:</strong> [Feature you are deliberately NOT building in 6 weeks]</li>
-        <li><strong>Out of Scope #3:</strong> [Feature you are deliberately NOT building in 6 weeks]</li>
+        <li>
+          <strong>In scope (the one core workflow):</strong> research profile &rarr;
+          fetch the week&rsquo;s papers from arXiv and Crossref &rarr; de-duplicate
+          &rarr; rank against the profile &rarr; one-line justification per paper
+          &rarr; save the briefing and collect useful / not-useful feedback.
+        </li>
+        <li><strong>Out of scope #1:</strong> Reading or summarising full-text PDFs. The
+          briefing works from titles, abstracts and venue metadata only.</li>
+        <li><strong>Out of scope #2:</strong> Email, Slack or push delivery, and any
+          scheduling or cron. The user opens the app and clicks.</li>
+        <li><strong>Out of scope #3:</strong> Accounts, login and multi-user support.
+          One local profile per install for all six weeks.</li>
+        <li><strong>Out of scope #4:</strong> Citation graphs, author-following,
+          reference management and Zotero/Mendeley export.</li>
       </ul>
 
-      <h3>3. How It Works Under the Hood & Riskiest Assumption (Week 2+)</h3>
-      <p><strong>Riskiest Assumption:</strong> [What is the #1 technical or user risk that could sink this product?]</p>
-      <p><strong>Simple Architecture:</strong> [User Input] → [Your App / Server] → [AI Model / Tool] → [Output]</p>
+      <h3>3. How It Works Under the Hood &amp; Riskiest Assumption</h3>
+      <div class="callout">
+        <p style="margin:0">
+          <strong>Riskiest assumption:</strong> that keyword overlap is a good enough
+          proxy for &ldquo;this paper is relevant to my dissertation.&rdquo;
+          <strong>Build 1 says it is not.</strong> A structural-biology profile
+          tracking <em>graph neural network</em> was shown GNN papers about traffic
+          forecasting, seizure localisation and aerodynamics. They match the phrase
+          exactly and are useless to that researcher. Literal matching cannot see
+          field context. This is the single thing that decides whether the product
+          works, and it is what the model-review layer exists to fix.
+        </p>
+      </div>
+      <p>
+        <strong>Architecture:</strong>
+        research profile (SQLite) &rarr; FastAPI backend &rarr; arXiv Atom API +
+        Crossref REST API (both free, no key) &rarr; de-duplication by DOI and title
+        &rarr; deterministic keyword / venue / recency scoring &rarr;
+        <em>optional</em> OpenRouter model pass that re-ranks the shortlist, drops
+        false matches and writes the &ldquo;Why you&rdquo; line &rarr; briefing saved
+        to SQLite and rendered server-side.
+      </p>
+      <p>
+        <strong>Deliberate design decision:</strong> the model layer is optional, not
+        load-bearing. If there is no API key, the call fails, or the model returns
+        unparseable output, the app keeps the deterministic ranking and the
+        keyword-derived explanations. A briefing is never blocked on a model. Every
+        screenshot above was produced with no model key at all.
+      </p>
 
-      <h3>4. Unit Economics & Analytics Snapshot (Updated Weekly)</h3>
+      <h3>4. Unit Economics &amp; Analytics Snapshot</h3>
       <div class="grid-2">
         <div class="stat-box">
           <div class="stat-label">Cumulative Build Spend</div>
-          <div class="stat-value">[Record actual spend]</div>
+          <div class="stat-value">$0.00</div>
         </div>
         <div class="stat-box">
-          <div class="stat-label">Est. Cost Per User Run</div>
-          <div class="stat-value">[Not yet estimated]</div>
+          <div class="stat-label">Est. Cost Per Briefing</div>
+          <div class="stat-value">~$0.002</div>
         </div>
         <div class="stat-box">
-          <div class="stat-label">User Evidence (Analytics from Build 2)</div>
-          <div class="stat-value">[Not yet measured]</div>
+          <div class="stat-label">User Evidence</div>
+          <div class="stat-value">PostHog lands Build 2</div>
         </div>
         <div class="stat-box">
           <div class="stat-label">Sponsor Call (Week 6)</div>
           <div class="stat-value">TBD</div>
         </div>
       </div>
+      <p class="meta">
+        Build 1 spent $0.00 on inference: both paper sources are free and keyless, and
+        zero model calls were made. The per-briefing estimate is for Build 2, when the
+        model reviews a 12-paper shortlist: roughly 6k input + 1k output tokens on a
+        cheap model. Hosting is $0 while the app is local.
+      </p>
     </section>
 
-    <!-- WEEKLY BUILD LOG (Updated at least twice a week via Git commits) -->
+    <!-- WEEKLY BUILD LOG -->
     <section id="build-log">
       <h2>Weekly Build Log</h2>
-      <p class="meta">Build on at least two separate days each week outside class, including the November 3 break. Push commits and log actual progress, failures, PRD changes, costs, and hours here. All build deadlines are noon, New York time.</p>
+      <p class="meta">All build deadlines are noon, New York time.</p>
 
       <div class="log-entry">
-        <h3>Build 1 · Intent.md & Throwaway Prototype (Due Nov 9)</h3>
+        <h3>Build 1 &middot; Intent &amp; Throwaway Prototype (Due Nov 9)</h3>
         <ul>
-          <li><strong>What shipped:</strong> [What you actually built; link your local prototype screenshot or GIF above.]</li>
-          <li><strong>Things learned with AI:</strong> [What you learned from AI practice and Terminus Episodes 1 and 2.]</li>
-          <li><strong>What broke / changed in PRD:</strong> [Fill in]</li>
-          <li><strong>Cost & time this week:</strong> $[0.00] · [0] hours</li>
+          <li>
+            <strong>What shipped:</strong> an end-to-end local app, not a mock.
+            FastAPI + SQLite + server-rendered Jinja templates. Research profile
+            editor, live fetch from arXiv and Crossref, DOI/title de-duplication,
+            explainable relevance scoring, briefing history, and per-paper
+            useful / not-useful feedback. 51 tests, all passing, no network needed.
+            Optional OpenRouter review layer is wired in and degrades gracefully.
+          </li>
+          <li>
+            <strong>What broke (all found by actually running it):</strong>
+            <table class="tbl">
+              <thead><tr><th>Problem</th><th>Fix</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td>Crossref returned papers dated <strong>2029</strong>, from
+                      low-quality journals, because sorting by publication date floats
+                      future-dated records to the top.</td>
+                  <td>Added an explicit <code>until-pub-date</code> of today, switched
+                      to relevance sorting, and reject future dates in code as well.</td>
+                </tr>
+                <tr>
+                  <td>The same eLife paper appeared twice. De-duplication keyed on DOI
+                      alone, and eLife mints a separate DOI per version.</td>
+                  <td>De-duplicate on DOI <em>and</em> normalised title; the published
+                      version now wins over the preprint.</td>
+                </tr>
+                <tr>
+                  <td>A paper matching <em>none</em> of the tracked topics appeared in
+                      a briefing, carried in on its recency score alone.</td>
+                  <td>Require at least one keyword match. Venue and recency are boosts
+                      on top of relevance, never a substitute for it. Caught by a test.</td>
+                </tr>
+                <tr>
+                  <td>&ldquo;Journal of Al-Farabi for Engineering <em>Sciences</em>&rdquo;
+                      was given the prestige of <em>Science</em>, because venue matching
+                      was a naive substring test.</td>
+                  <td>Whole-word prefix matching. Real families like
+                      <em>Nature Methods</em> still match; coincidental words no longer do.</td>
+                </tr>
+                <tr>
+                  <td>A briefing took <strong>77.6 seconds</strong> &mdash; unusable.</td>
+                  <td>Crossref keyword queries now run concurrently and arXiv retries
+                      were cut back. Same briefing now takes <strong>7.3 seconds</strong>.</td>
+                </tr>
+                <tr>
+                  <td><code>export.arxiv.org</code> answers <strong>HTTP 429</strong> to
+                      any quoted phrase query from this machine, so arXiv contributed
+                      nothing to the demo briefings.</td>
+                  <td>Rewrote the query to be category-only and quote-free, and did the
+                      keyword matching locally instead. Still 429 here, so the run
+                      degrades to Crossref and records the failure in the briefing
+                      trace rather than hiding it. <strong>Open issue, first job in
+                      Build 2.</strong></td>
+                </tr>
+              </tbody>
+            </table>
+          </li>
+          <li>
+            <strong>What changed in the PRD:</strong> the riskiest assumption moved.
+            It was &ldquo;can I get the data at all?&rdquo; &mdash; which turned out to
+            be easy, since both sources are free and keyless. It is now
+            &ldquo;keyword overlap is not field relevance,&rdquo; which the prototype
+            demonstrated clearly and which the model layer has to earn its place by
+            fixing.
+          </li>
+          <li>
+            <strong>Things learned with AI:</strong> the agent wrote working code
+            quickly, but every one of the six defects above came from running the
+            thing against live APIs, not from reading the code. Two were caught by
+            tests the agent wrote; four were only visible in real output. Telling the
+            agent to stop after two failed attempts on the arXiv 429 (a rule in
+            <code>AGENTS.md</code>) mattered &mdash; it turned a loop into a diagnosis,
+            which is what produced the category-only query redesign.
+          </li>
+          <li>
+            <strong>Cost &amp; time this week:</strong> $0.00 inference &middot;
+            $0.00 hosting &middot;
+            <span class="todo">hours: to fill in</span>
+          </li>
         </ul>
       </div>
 
       <div class="log-entry">
-        <h3>Build 2 · Smallest Local Version & PostHog (Due Nov 16)</h3>
+        <h3>Build 2 &middot; Smallest Local Version &amp; PostHog (Due Nov 16)</h3>
         <ul>
-          <li><strong>What shipped:</strong> [Local working slice, PostHog verified on this page and the local app, PRD v2, and local setup in AGENTS.md]</li>
+          <li><strong>Planned:</strong> (1) fix or replace the arXiv source &mdash;
+            preprints matter most to this user; (2) turn on the OpenRouter review layer
+            and measure whether it actually kills the off-field matches, which is the
+            riskiest assumption; (3) install PostHog on this page and in the app and
+            verify events; (4) PRD v2.</li>
           <li><strong>What broke / changed in PRD:</strong> [Fill in]</li>
-          <li><strong>Cost & time this week:</strong> $[0.00] · [0] hours</li>
+          <li><strong>Cost &amp; time this week:</strong> $[0.00] &middot; [0] hours</li>
         </ul>
       </div>
 
       <div class="log-entry">
-        <h3>Build 3 · Build.exe: The Core Workflow (Due Nov 23)</h3>
+        <h3>Build 3 &middot; Build.exe: The Core Workflow (Due Nov 23)</h3>
         <ul>
           <li><strong>What shipped:</strong> [End-to-end workflow working with real inputs + PostHog funnel events]</li>
           <li><strong>What broke / changed in PRD:</strong> [Fill in]</li>
-          <li><strong>Cost & time this week:</strong> $[0.00] · [0] hours</li>
+          <li><strong>Cost &amp; time this week:</strong> $[0.00] &middot; [0] hours</li>
         </ul>
       </div>
 
       <div class="log-entry">
-        <h3>Build 4 · Test.py: Choose Track A or Track B (Due Nov 30)</h3>
+        <h3>Build 4 &middot; Test.py: Choose Track A or Track B (Due Nov 30)</h3>
         <ul>
-          <li><strong>Chosen track:</strong> [A: 10-case domain eval and one outside target-user review; OR B: 3–5 outside users and replay findings]</li>
-          <li><strong>Results and improvements:</strong> [Before/after evidence; for Track B, fixes to the top three friction points]</li>
+          <li><strong>Chosen track:</strong> leaning Track A &mdash; relevance is a
+            domain-quality question, and &ldquo;is this paper actually for this
+            researcher?&rdquo; is exactly a 10-case eval with messy and adversarial
+            cases (off-field papers that match a keyword).</li>
+          <li><strong>Results and improvements:</strong> [Before/after evidence]</li>
           <li><strong>PRD v4 changes:</strong> [What the evidence changed]</li>
-          <li><strong>Cost & time this week:</strong> $[0.00] · [0] hours</li>
+          <li><strong>Cost &amp; time this week:</strong> $[0.00] &middot; [0] hours</li>
         </ul>
       </div>
 
       <div class="log-entry">
-        <h3>Build 5 · Ship.installer: Launch Ops, Rollback Check & 2-Min Video (Due Dec 7)</h3>
+        <h3>Build 5 &middot; Ship.installer: Launch Ops, Rollback &amp; 2-Min Video (Due Dec 7)</h3>
         <ul>
-          <li><strong>Launch Ops & Safety:</strong> [Verified no exposed keys, set spend cap, tested 2-minute rollback]</li>
-          <li><strong>2-Minute Video & Final Polish:</strong> [Link/embed above]</li>
-          <li><strong>Cost & time this week:</strong> $[0.00] · [0] hours</li>
+          <li><strong>Launch Ops &amp; Safety:</strong> [Verified no exposed keys, set spend cap, tested 2-minute rollback]</li>
+          <li><strong>2-Minute Video &amp; Final Polish:</strong> [Link/embed above]</li>
+          <li><strong>Cost &amp; time this week:</strong> $[0.00] &middot; [0] hours</li>
         </ul>
       </div>
     </section>

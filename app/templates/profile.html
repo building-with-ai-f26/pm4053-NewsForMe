@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Research profile · NewsForMe{% endblock %}
+{% block content %}
+<section class="card">
+  <h1>Your research profile</h1>
+  <p class="muted">
+    This is the only thing the briefing is built from. Be specific: the tracked
+    topics are matched against every title and abstract, so "diffusion models for
+    protein design" works far better than "biology".
+  </p>
+
+  <form method="post" action="/profile" class="stack">
+    <label>
+      Your name
+      <input type="text" name="display_name" value="{{ profile.display_name }}"
+             placeholder="e.g. Priya, 3rd-year PhD" />
+    </label>
+
+    <label>
+      Field / dissertation area
+      <input type="text" name="field" value="{{ profile.field }}"
+             placeholder="e.g. computational structural biology" />
+    </label>
+
+    <label>
+      Tracked topics <span class="hint">one per line, or comma-separated</span>
+      <textarea name="keywords" rows="6"
+        placeholder="graph neural networks&#10;protein structure prediction&#10;cryo-EM">{{ profile.keywords | join('\n') }}</textarea>
+    </label>
+
+    <label>
+      Journals / venues you must not miss <span class="hint">optional; these get a ranking boost</span>
+      <textarea name="venues" rows="3"
+        placeholder="Nature Methods&#10;Cell&#10;PNAS">{{ profile.venues | join('\n') }}</textarea>
+    </label>
+
+    <label>
+      arXiv categories <span class="hint">optional; e.g. q-bio.BM, cs.LG, stat.ML</span>
+      <textarea name="arxiv_categories" rows="2"
+        placeholder="q-bio.BM&#10;cs.LG">{{ profile.arxiv_categories | join('\n') }}</textarea>
+    </label>
+
+    <label class="narrow">
+      Lookback window (days)
+      <input type="number" name="lookback_days" min="1" max="90"
+             value="{{ profile.lookback_days }}" />
+    </label>
+
+    <button type="submit" class="btn"
+      onclick="window.posthog && posthog.capture('saved_profile')">Save profile</button>
+  </form>
+</section>
+{% endblock %}

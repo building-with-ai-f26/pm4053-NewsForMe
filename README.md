@@ -1,10 +1,12 @@
-# [NewsForMe]
+# NewsForMe
 
-> **One-line pitch:** [Who is this for, and what job does it do for them?]
+> **One-line pitch:** A weekly research briefing for PhD candidates — it reads the
+> week's new papers across arXiv and the journals, keeps the handful that touch
+> your dissertation, and tells you in one line why each one is yours.
 
-- **Builder:** Piyush Muraleedharan (`@PiyushM101)
+- **Builder:** Piyush Muraleedharan (`@PiyushM101`)
 - **Pod:** [Pod Name / Number]
-- **Product Page & Living PRD:** [Add your GitHub Pages URL]
+- **Product Page & Living PRD:** https://building-with-ai-f26.github.io/pm4053-NewsForMe/
 - **App:** runs locally through Week 4; add a cloud URL in Build 5.
 
 ## Start here: Build 1
@@ -35,11 +37,65 @@ Create your PostHog account in Week 1. Install it on the Product Page and local 
 
 ## Local setup
 
-Clone **your own repository** and ask your coding agent to document the exact install and run commands here and in `AGENTS.md`.
+Requires Python 3.9 or newer. No Node, no build step, no API key.
 
 ```bash
-git clone https://github.com/building-with-ai-f26/<your-repo-name>.git
-cd <your-repo-name>
+git clone https://github.com/building-with-ai-f26/pm4053-NewsForMe.git
+cd pm4053-NewsForMe
+python3 -m venv .venv
+./.venv/bin/pip install -r requirements.txt
 ```
 
-If your app needs API keys, use a local environment file such as `.env`. Keep private keys out of source code, browser code, screenshots, and commits. The template ignores `.env`; `.env.example` contains placeholders only.
+Run it:
+
+```bash
+./.venv/bin/uvicorn app.main:app --reload --port 8000
+```
+
+Then open <http://localhost:8000>, fill in your research profile, and click
+**Generate this week's briefing**.
+
+Run the tests (51 tests, no network needed):
+
+```bash
+./.venv/bin/python -m pytest tests/ -q
+```
+
+### API keys
+
+**NewsForMe runs with no keys at all.** arXiv and Crossref are both free and
+keyless, and without a model key the app ranks papers by keyword, venue and
+recency and explains each pick from your matched keywords.
+
+Adding an `OPENROUTER_API_KEY` turns on an extra pass that re-ranks the
+shortlist, drops papers that only match your keywords by coincidence, and writes
+a better "why you" line. To enable it:
+
+```bash
+cp .env.example .env
+```
+
+then edit `.env`. Keep private keys out of source code, browser code,
+screenshots, and commits. The template ignores `.env`; `.env.example` contains
+placeholders only.
+
+### How it works
+
+```
+research profile (SQLite)
+   -> arXiv Atom API + Crossref REST API      (free, no key)
+   -> de-duplicate by DOI and normalised title
+   -> deterministic keyword / venue / recency scoring
+   -> optional OpenRouter review pass          (skipped if unavailable)
+   -> briefing saved to SQLite, rendered server-side
+```
+
+See [`AGENTS.md`](./AGENTS.md) for the file-by-file map and the engineering
+rules, and [`docs/index.html`](./docs/index.html) for the living PRD.
+
+### Known limitation
+
+`export.arxiv.org` currently returns HTTP 429 from the development machine, so
+briefings are built from Crossref alone and the arXiv failure is recorded in
+each briefing's trace. Fixing or replacing the arXiv source is the first task in
+Build 2.

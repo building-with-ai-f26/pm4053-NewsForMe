@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Briefing #{{ briefing.id }} · NewsForMe{% endblock %}
+{% block content %}
+<section class="card">
+  <h1>Briefing #{{ briefing.id }}</h1>
+  <p class="muted">
+    {{ briefing.created_at }} &middot; {{ briefing.item_count }} papers chosen from
+    {{ briefing.candidate_count }} candidates &middot; {{ briefing.duration_ms }} ms
+  </p>
+  <details class="trace">
+    <summary>How this briefing was built</summary>
+    <p><strong>Ranked by:</strong> <code>{{ briefing.model_used }}</code></p>
+    <p><strong>Pipeline trace:</strong> {{ briefing.notes }}</p>
+    {% if briefing.prompt_tokens %}
+    <p><strong>Tokens:</strong> {{ briefing.prompt_tokens }} in /
+       {{ briefing.completion_tokens }} out</p>
+    {% endif %}
+  </details>
+</section>
+
+{% if briefing.items %}
+  {% for item in briefing['items'] %}
+  <article class="card paper">
+    <div class="paper-head">
+      <span class="rank">#{{ item.rank }}</span>
+      <h2><a href="{{ item.paper.url }}" target="_blank" rel="noopener"
+        onclick="window.posthog && posthog.capture('opened_paper')">{{ item.paper.title }}</a></h2>
+    </div>
+
+    <p class="meta">
+      <span class="source source-{{ item.paper.source }}">{{ item.paper.source }}</span>
+      {{ item.paper.venue or "venue unknown" }}
+      {% if item.paper.published_at %}&middot; {{ item.paper.published_at[:10] }}{% endif %}
+      {% if item.paper.authors %}&middot; {{ item.paper.authors[:3] | join(', ') }}{% if item.paper.authors | length > 3 %} et al.{% endif %}{% endif %}
+    </p>
+
+    <p class="why">
+      <strong>Why you:</strong> {{ item.rationale }}
+      <span class="tag tag-{{ item.rationale_source }}">{{ item.rationale_source }}</span>
+    </p>
+
+    {% if item.paper.abstract %}
+    <details>
+      <summary>Abstract</summary>
+      <p class="abstract">{{ item.paper.abstract }}</p>
+    </details>
+    {% endif %}
+
+    <details>
+      <summary>Score {{ "%.2f"|format(item.score) }}</summary>
+      <ul class="breakdown">
+        <li>keyword match: {{ item.breakdown.get('keywords', 0) }}</li>
+        <li>venue boost: {{ item.breakdown.get('venue', 0) }}</li>
+        <li>recency: {{ item.breakdown.get('recency', 0) }}</li>
+        <li>matched: {{ item.breakdown.get('matched_keywords', []) | join(', ') or 'none' }}</li>
+      </ul>
+    </details>
+
+    <form method="post" action="/feedback" class="vote-form">
+      <input type="hidden" name="paper_id" value="{{ item.paper.id }}" />
+      <input type="hidden" name="briefing_id" value="{{ briefing.id }}" />
+      {% if item.vote %}
+        <span class="voted">You marked this {{ item.vote.replace('_', ' ') }}.</span>
+      {% endif %}
+      <button type="submit" name="vote" value="useful" class="btn btn-small"
+        onclick="window.posthog && posthog.capture('rated_paper', {vote: 'useful'})">Useful</button>
+      <button type="submit" name="vote" value="not_useful" class="btn btn-small btn-ghost"
+        onclick="window.posthog && posthog.capture('rated_paper', {vote: 'not_useful'})">Not useful</button>
+    </form>
+  </article>
+  {% endfor %}
+{% else %}
+  <section class="card">
+    <h2>Nothing cleared the bar</h2>
+    <p class="muted">
+      No paper matched your tracked topics inside the {{ briefing.lookback_days }}-day
+      window. Widen the window, or loosen a topic on your
+      <a href="/profile">profile</a>.
+    </p>
+    <p class="muted"><strong>Trace:</strong> {{ briefing.notes }}</p>
+  </section>
+{% endif %}
+
+<p><a href="/">&larr; Back to briefings</a></p>
+{% endblock %}
