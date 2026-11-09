@@ -1,8 +1,8 @@
-# [Project Name]
+# [NewsForMe]
 
 > **One-line pitch:** [Who is this for, and what job does it do for them?]
 
-- **Builder:** [Your Name] (`@github-handle`)
+- **Builder:** Piyush Muraleedharan (`@PiyushM101)
 - **Pod:** [Pod Name / Number]
 - **Product Page & Living PRD:** [Add your GitHub Pages URL]
 - **App:** runs locally through Week 4; add a cloud URL in Build 5.
