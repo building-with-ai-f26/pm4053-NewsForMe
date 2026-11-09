@@ -290,6 +290,25 @@
         screenshot above was produced with no model key at all.
       </p>
 
+      <div class="callout callout-warn">
+        <p style="margin:0 0 8px">
+          <strong>Planned change &mdash; rebuilding the stack on Lovable.</strong>
+          I want to move the tech stack to <a href="https://lovable.dev">Lovable</a>
+          rather than keep hand-rolling the FastAPI + Jinja front end. A prototype is
+          already running at <a href="https://newsforme.fyi">newsforme.fyi</a>.
+        </p>
+        <p style="margin:0" class="meta">
+          The reason is where my time goes. The parts of this product that are
+          actually hard &mdash; relevance ranking, de-duplication, tolerating dirty
+          feed data &mdash; live in <code>app/ranking.py</code> and
+          <code>app/sources.py</code>, and none of that is UI work. Hand-building
+          screens buys nothing I can defend to a sponsor. The open question for Build
+          2 is whether the ranking and source logic can move across intact, or whether
+          it has to be re-implemented; if it does, that is a real cost to weigh
+          against the time saved on the interface.
+        </p>
+      </div>
+
       <h3>4. Unit Economics &amp; Analytics Snapshot</h3>
       <div class="grid-2">
         <div class="stat-box">
@@ -414,7 +433,10 @@
             preprints matter most to this user; (2) turn on the OpenRouter review layer
             and measure whether it actually kills the off-field matches, which is the
             riskiest assumption; (3) install PostHog on this page and in the app and
-            verify events; (4) PRD v2.</li>
+            verify events; (4) evaluate moving the stack to Lovable &mdash; prototype
+            at <a href="https://newsforme.fyi">newsforme.fyi</a> &mdash; and decide
+            whether the ranking and source logic ports across or gets rewritten;
+            (5) PRD v2.</li>
           <li><strong>What broke / changed in PRD:</strong> [Fill in]</li>
           <li><strong>Cost &amp; time this week:</strong> $[0.00] &middot; [0] hours</li>
         </ul>
