@@ -97,6 +97,11 @@
       font-size: 16px;
       margin: 18px 0 6px;
     }
+    h4 {
+      font-size: 15px;
+      margin: 20px 0 6px;
+      color: var(--text);
+    }
     p, ul {
       margin: 0 0 12px;
       color: #1f2937;
@@ -418,11 +423,77 @@
         <li><strong>The pipeline is a single point of failure.</strong> If n8n fails
           at 8am, the user gets nothing and may not notice the product exists. The
           briefings table records failures, so this is at least visible.</li>
-        <li><strong>Publishable key safety depends entirely on row level security.</strong>
-          The Supabase key ships in browser code by design. If RLS were ever off, that
-          key would expose other users&rsquo; data. Verifying it is a Build 5 launch-ops
-          item.</li>
+        <li><strong>Publishable key safety depends entirely on row level security
+          &mdash; checked, and it holds.</strong> The Supabase key ships in browser
+          code by design, and this repository is public, so the whole security model
+          rests on RLS. Audited 14 Nov 2026; details below. This was a Build 5
+          launch-ops item, brought forward because the public mirror made it
+          urgent.</li>
       </ul>
+
+      <h4>Security audit &mdash; row level security, 14 Nov 2026</h4>
+      <p>
+        Mirroring the beta into a public course repository publishes the Supabase
+        publishable key. That is how the key is meant to be used, but it means every
+        protection sits in the database rather than in the client. So the database was
+        audited rather than assumed.
+      </p>
+      <table class="tbl">
+        <thead><tr><th>Check</th><th>Result</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>RLS enabled on every table</td>
+            <td><strong>Pass.</strong> All five: profiles, topics, sources, briefings,
+                sent_items.</td>
+          </tr>
+          <tr>
+            <td>Policies actually scope to the user</td>
+            <td><strong>Pass.</strong> All twelve policies are limited to the
+                <code>authenticated</code> role and match on
+                <code>auth.uid()</code>. Nothing is granted to anonymous callers, and
+                no policy is a blanket <code>USING (true)</code>. The update policies
+                carry both <code>USING</code> and <code>WITH CHECK</code>, which is
+                what stops a user reassigning a row to someone else.</td>
+          </tr>
+          <tr>
+            <td>Empirical test with the published key</td>
+            <td><strong>Pass.</strong> Calling the REST API anonymously with the
+                publishable key returned zero rows on all five tables. This is the
+                check that matters: not that policies exist, but that they bite.</td>
+          </tr>
+          <tr>
+            <td>Functions that bypass RLS</td>
+            <td><strong>Pass, reviewed individually.</strong> Six
+                <code>SECURITY DEFINER</code> warnings, all intentional.
+                <code>delete_my_account</code> and <code>save_topics_and_sources</code>
+                derive the user from <code>auth.uid()</code> and take no user id
+                argument, so they cannot act on anyone else. The unsubscribe and
+                resubscribe functions are callable signed-out on purpose, because an
+                unsubscribe link in an email has to work; they key on a 122-bit token
+                and return a masked address hint rather than the address. All four set
+                <code>search_path = ''</code>, which closes the usual
+                <code>SECURITY DEFINER</code> hijack.</td>
+          </tr>
+          <tr>
+            <td>Unsubscribe link safety</td>
+            <td><strong>Pass.</strong> Corporate mail scanners follow links in email
+                and can silently unsubscribe people. The route needs a real button
+                press, so a prefetch cannot trigger it.</td>
+          </tr>
+          <tr>
+            <td>&ldquo;Leaked password protection disabled&rdquo;</td>
+            <td><strong>Not applicable.</strong> Sign-in is passwordless email links.
+                There are no passwords to leak.</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="meta">
+        Not tested: anonymous <em>writes</em>, because a test insert would leave junk
+        in the live database if it succeeded. The policy catalogue settles it instead
+        &mdash; there is no insert policy for anonymous callers, and with RLS on, no
+        policy means no access. Every query run in this audit was read-only, and
+        nothing in the database was changed.
+      </p>
 
       <h3>6. Unit Economics &amp; Analytics Snapshot</h3>
       <div class="grid-2">
