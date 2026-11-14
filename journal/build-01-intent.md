@@ -68,9 +68,11 @@ Six defects, all found by running the thing rather than reading the code:
 - **Agent / token spend this week:** *(fill in)*
 - **Hosting / API runtime spend this week:** `$0.00` — both sources are free and
   keyless, and zero model calls were made.
-- **Your hours spent this week:** *(fill in)*
+- **Your hours spent this week:** `3–5 hrs`
 
 ## 6. Pod Critique Sign-off
 
-- **Tested by podmate(s):** *(fill in)*
+- **Testers lined up:** Roshni K. (3rd-year PhD, vaccine development, NJMS) — in
+  person this week; Siddhi P. (postdoc, host–pathogen interaction, NJMS) —
+  screen-share.
 - **Key feedback to address next:** *(fill in)*

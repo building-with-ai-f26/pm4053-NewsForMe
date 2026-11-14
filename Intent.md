@@ -14,8 +14,14 @@ Working notes. The required PRD and Build 1 log are published on
   published in their field this week — the ones whose advisor opens a meeting
   with "did you see the new paper?" They already have Scholar alerts and journal
   TOC emails; the problem is not coverage, it is triage.
-- **How I will reach them to test it:** *(to fill in — name 2–3 specific PhD
-  students, how you know them, and when you will put this in front of them.)*
+- **How I will reach them to test it:**
+  - **Roshni K.** — 3rd-year PhD at Rutgers NJMS, vaccine development. Testing
+    **in person** at NJMS this week; she drives, I watch without coaching.
+  - **Siddhi P.** — postdoc at Rutgers NJMS, host–pathogen interaction. Testing
+    over a **screen-share call**, since the app is local-only until Build 5.
+  - Different career stages on purpose: a third-year is still defining a thesis
+    area, a postdoc has a narrow fixed set of topics. If the profile works for
+    both, the ranking is not over-fitted to one way of describing a field.
 
 ## 2. What job does it do?
 
