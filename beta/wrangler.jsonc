@@ -1,0 +1,7 @@
+{
+  // Must match the Worker name in the Cloudflare dashboard.
+  // Without this, the build names the Worker after the GitHub repo path
+  // ("piyushm101-newsforme-daily-brief"), and Cloudflare Workers Builds
+  // fails because the names do not match.
+  "name": "newsforme-daily-brief"
+}
