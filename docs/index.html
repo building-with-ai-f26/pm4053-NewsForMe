@@ -634,7 +634,41 @@
             product as it actually works. What did <em>not</em> get decided is
             whether the Build 1 ranking logic moves into the live pipeline or is
             replaced by the n8n workflow; that slips to Build 3.</li>
-          <li><strong>What broke / changed in PRD:</strong> [Fill in]</li>
+          <li>
+            <strong>Open bug, found by the security audit:
+            sources are silently dropped on save.</strong>
+            The database function that saves topics and sources stops after
+            <strong>12 sources on any one topic</strong> and
+            <strong>15 in the shared all-topics list</strong>. It stops quietly: the
+            loop simply exits, so no error is raised and nothing is returned to say
+            anything was discarded.
+            <br />
+            Nothing in the interface reflects those numbers. There is no counter and
+            no disabled state on the source inputs, and the only source constant the
+            client defines, <code>MAX_SOURCES = 80</code>, is never used anywhere.
+            So a user can add twenty sources to a topic, see twenty chips, press Save,
+            get a success toast, and lose eight of them without being told. They find
+            out on reload, if they notice at all.
+            <br />
+            This matters more than a normal off-by-one because section 3 of the PRD
+            argues that choosing sources <em>is</em> how this product gets relevance
+            right. A feature that quietly discards part of that choice undermines the
+            core claim, and it is exactly the kind of thing an in-person tester hits
+            while someone watches.
+            <br />
+            <em>Not yet fixed.</em> The fix is to agree one limit and apply it in
+            three places: the interface should show a counter and stop accepting
+            sources at the cap, the save function should raise instead of truncating,
+            and the stale &ldquo;max 40 per user&rdquo; line in the beta README should
+            be corrected. The 80-source ceiling enforced by the database trigger is
+            consistent with the client constant and is not the problem; the per-topic
+            and all-topics caps are.
+          </li>
+          <li>
+            <strong>Also changed in the PRD:</strong> the row level security check was
+            a Build 5 item. Publishing the Supabase key in a public mirror made that
+            unacceptable, so the audit was done now. Result in section 5.
+          </li>
           <li><strong>Cost &amp; time this week:</strong> $[0.00] &middot; [0] hours</li>
         </ul>
       </div>
