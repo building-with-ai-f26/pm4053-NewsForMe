@@ -32,8 +32,57 @@ Create your PostHog account in Week 1. Install it on the Product Page and local 
 | [`AGENTS.md`](./AGENTS.md) | Local run commands, project context, and agent rules. Build 2 onward. |
 | [`tests/`](./tests/) | Verification guidance. Build 4 offers Track A domain evals **or** Track B user replays. |
 | [`SPONSOR_MEMO.md`](./SPONSOR_MEMO.md) | One-page recommendation backed by actual usage, full costs, and risks. Due December 14 at noon. |
+| [`app/`](./app/) | **Build 1 prototype.** Python / FastAPI / SQLite. Runs locally. |
+| [`beta/`](./beta/) | **Live beta**, mirrored automatically. TypeScript / Lovable / Supabase / Cloudflare. Do not edit here. |
+| [`.github/workflows/sync-beta.yml`](./.github/workflows/sync-beta.yml) | The mirror job that keeps `beta/` current. |
 
 [Icerynk](https://www.icerynk.com/c/fa26-tech-gb-2160-dm2-f2/content) holds the assignment instructions and submissions.
+
+## Two codebases, on purpose
+
+This repo holds two implementations of the same product. That is deliberate,
+not leftover clutter.
+
+**[`app/`](./app/) is the Build 1 prototype.** Python, FastAPI, SQLite, no build
+step. It is what the Build 1 log and the screenshots on the Product Page
+describe, and it still runs — see [Local setup](#local-setup) below. The parts
+of the product that are genuinely hard live here: relevance ranking in
+[`app/ranking.py`](./app/ranking.py), and feed parsing, de-duplication and
+dirty-data handling in [`app/sources.py`](./app/sources.py), both covered by the
+51 tests in [`tests/`](./tests/).
+
+**[`beta/`](./beta/) is the live beta.** TypeScript on TanStack Start, built with
+Lovable, backed by Supabase and deployed on Cloudflare. Source of truth:
+[PiyushM101/newsforme-daily-brief](https://github.com/PiyushM101/newsforme-daily-brief).
+Live at [newsforme.fyi](https://newsforme.fyi).
+
+The open question for Build 2 is whether the ranking and source logic in `app/`
+ports into the beta intact or has to be re-implemented. That is where this
+project's real work sits, so the answer carries a real cost either way.
+
+### How `beta/` stays current
+
+`beta/` is a **read-only mirror**. Editing it here is pointless: the next sync
+overwrites your changes. Make changes in the source repo instead.
+
+[`sync-beta.yml`](./.github/workflows/sync-beta.yml) pulls the source repo every
+six hours, and on demand from **Actions → Sync beta app → Run workflow** (or
+`gh workflow run sync-beta.yml`). Scheduled runs can land 5–20 minutes late;
+the manual button is immediate. The source repo is public, so the job needs no
+token and stores no secret in either repo.
+
+Two guards, both tested against planted failures before the job shipped:
+
+1. **Nothing outside `beta/` may change.** `docs/` is what GitHub Pages serves,
+   and this README and `AGENTS.md` also exist in the source repo, so an
+   unguarded sync would overwrite graded files. The job fails instead.
+2. **No secrets.** Service-role keys, private keys, provider API keys and any
+   `.env` file abort the sync. Supabase *publishable* keys are allowed through,
+   since they are designed to ship in client code — which is only safe while
+   Row Level Security is enabled on the Supabase tables.
+
+Commits from this job are machine-made mirrors, labelled as such, and are not a
+record of hand-written progress.
 
 ## Local setup
 
