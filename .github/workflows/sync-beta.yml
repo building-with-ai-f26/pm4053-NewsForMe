@@ -1,0 +1,101 @@
+# Mirrors the live beta app (built with Lovable + Supabase + Cloudflare) from
+# a personal repo into this course repo, under beta/ only.
+#
+# Why pull and not push: the source repo is public, so this needs no token and
+# no secrets. Nothing has to be stored in the personal repo.
+#
+# The two guard steps are the point of this workflow. This repo's docs/ folder
+# is what GitHub Pages serves (the Product Page and living PRD), and the root
+# README.md and AGENTS.md are graded artifacts that also exist in the source
+# repo. A sync that escaped beta/ would overwrite them, so the job fails loudly
+# instead of committing anything outside beta/.
+name: Sync beta app
+
+on:
+  schedule:
+    # Every 6 hours. GitHub runs scheduled jobs late under load, so treat this
+    # as "within the hour", not on the minute. Use the Run workflow button for
+    # an immediate sync before a demo.
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+
+# Never let two syncs race each other onto main.
+concurrency:
+  group: sync-beta
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+env:
+  SOURCE_REPO: PiyushM101/newsforme-daily-brief
+  TARGET_DIR: beta
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the course repo
+        uses: actions/checkout@v4
+
+      - name: Clone the beta app
+        run: |
+          git clone --depth 1 "https://github.com/${SOURCE_REPO}.git" /tmp/source
+          echo "SOURCE_SHA=$(git -C /tmp/source rev-parse HEAD)" >> "$GITHUB_ENV"
+          echo "SOURCE_SHORT=$(git -C /tmp/source rev-parse --short HEAD)" >> "$GITHUB_ENV"
+          echo "SOURCE_SUBJECT=$(git -C /tmp/source log -1 --format=%s)" >> "$GITHUB_ENV"
+
+      - name: Copy into ${{ env.TARGET_DIR }}/
+        run: |
+          mkdir -p "${TARGET_DIR}"
+          # --delete so files removed upstream disappear here too.
+          rsync -a --delete \
+            --exclude '.git/' \
+            --exclude 'node_modules/' \
+            --exclude 'dist/' \
+            /tmp/source/ "${TARGET_DIR}/"
+
+      - name: Guard - refuse secrets
+        run: |
+          # The course repo is public. Fail rather than publish a credential.
+          # Supabase *publishable* keys are meant to ship in client code and
+          # are deliberately not matched here; service-role keys are.
+          if grep -rIlE 'service_role|SUPABASE_SERVICE|BEGIN [A-Z ]*PRIVATE KEY|sk-ant-|sk-or-v1-[A-Za-z0-9]{20}' \
+               "${TARGET_DIR}" 2>/dev/null | grep -q .; then
+            echo "::error::Possible secret in synced files. Nothing committed."
+            grep -rIlE 'service_role|SUPABASE_SERVICE|BEGIN [A-Z ]*PRIVATE KEY|sk-ant-|sk-or-v1-[A-Za-z0-9]{20}' "${TARGET_DIR}" || true
+            exit 1
+          fi
+          if find "${TARGET_DIR}" -name '.env' -o -name '.env.*' ! -name '.env.example' | grep -q .; then
+            echo "::error::An .env file reached the sync. Nothing committed."
+            exit 1
+          fi
+          echo "No secrets found."
+
+      - name: Guard - nothing may change outside ${{ env.TARGET_DIR }}/
+        run: |
+          # docs/ drives GitHub Pages; the root files are graded. If the sync
+          # has touched anything but beta/, stop before committing.
+          outside="$(git status --porcelain=v1 | cut -c4- | grep -v "^${TARGET_DIR}/" || true)"
+          if [ -n "$outside" ]; then
+            echo "::error::Sync touched files outside ${TARGET_DIR}/ - refusing to commit."
+            echo "$outside"
+            exit 1
+          fi
+          echo "All changes are confined to ${TARGET_DIR}/."
+
+      - name: Commit and push if anything changed
+        run: |
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "Already up to date with ${SOURCE_SHORT}. Nothing to commit."
+            exit 0
+          fi
+          git config user.name  'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add "${TARGET_DIR}"
+          git commit -m "Sync beta app from ${SOURCE_REPO}@${SOURCE_SHORT}" \
+                     -m "Upstream commit: ${SOURCE_SUBJECT}" \
+                     -m "Source: https://github.com/${SOURCE_REPO}/commit/${SOURCE_SHA}" \
+                     -m "Automated mirror into ${TARGET_DIR}/. Not a hand-written change."
+          git push
+          echo "Synced ${SOURCE_SHORT}."
