@@ -1,13 +1,24 @@
 # NewsForMe
 
-> **One-line pitch:** A weekly research briefing for PhD candidates — it reads the
-> week's new papers across arXiv and the journals, keeps the handful that touch
-> your dissertation, and tells you in one line why each one is yours.
+> **One-line pitch:** A daily email brief built only from the sources you choose
+> — it reads them for you, keeps the few items that touch your own work, and tells
+> you in one line why each one is yours.
 
 - **Builder:** Piyush Muraleedharan (`@PiyushM101`)
 - **Pod:** [Pod Name / Number]
+- **Primary user:** researchers — PhD students, postdocs and professors — who are
+  accountable for knowing their field and currently learn it late. Students and
+  working professionals get their own onboarding path.
 - **Product Page & Living PRD:** https://building-with-ai-f26.github.io/pm4053-NewsForMe/
-- **App:** runs locally through Week 4; add a cloud URL in Build 5.
+- **Live beta:** [newsforme.fyi](https://newsforme.fyi) — sign in with an email
+  link, pick topics and sources, get a daily brief.
+- **Build 1 prototype:** [`app/`](./app/), still runs locally — see
+  [Local setup](#local-setup).
+
+> **This pitch changed in Build 2.** v1 described a *weekly* briefing you opened
+> yourself, reading arXiv and Crossref. It is now a *daily email* from sources the
+> user picks. Why, and what that cost, are in
+> [PRD v2](https://building-with-ai-f26.github.io/pm4053-NewsForMe/#prd).
 
 ## Start here: Build 1
 
