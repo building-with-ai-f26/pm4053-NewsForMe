@@ -191,10 +191,17 @@
     <section id="live-demo">
       <h2>Product Showcase</h2>
       <p>
-        <strong>Current status:</strong> Build 1 &mdash; working local prototype
-        (FastAPI + SQLite, runs at <code>http://localhost:8000</code>).<br />
-        <strong>Cloud URL:</strong> not yet; the app stays local through Week 4 and
-        gets deployed in Build 5.
+        <strong>Live beta:</strong>
+        <a href="https://newsforme.fyi"><strong>newsforme.fyi</strong></a> &mdash;
+        sign up with an email link, pick topics and sources, get a daily brief.
+        Source in <a href="https://github.com/building-with-ai-f26/pm4053-NewsForMe/tree/main/beta"><code>beta/</code></a>,
+        mirrored automatically from its own repository.<br />
+        <strong>Build 1 prototype:</strong> still in
+        <a href="https://github.com/building-with-ai-f26/pm4053-NewsForMe/tree/main/app"><code>app/</code></a>
+        (FastAPI + SQLite, runs at <code>http://localhost:8000</code>). The
+        screenshots below are from that prototype and are what the Build 1 log
+        describes; they are kept as the record of that week, not as a picture of the
+        current product.
       </p>
 
       <img class="shot" src="img/briefing.jpg"
@@ -216,140 +223,216 @@
     <!-- LIVING PRD -->
     <section id="prd">
       <h2>Living PRD (Product Requirements Document)</h2>
-      <p class="meta">v1 &mdash; Build 1, 9 Nov 2026. Updated every week as real users test it.</p>
+      <p class="meta">
+        <strong>v2</strong> &mdash; 14 Nov 2026. Supersedes v1 (Build 1, 9 Nov).
+        The Build 1 log below is left exactly as written; this section describes
+        the product as it now actually works.
+      </p>
+
+      <div class="callout callout-warn">
+        <p style="margin:0 0 8px"><strong>What changed since v1, and why.</strong></p>
+        <p style="margin:0">
+          v1 described a local app where a researcher clicks a button and gets a
+          weekly list of papers, ranked by keyword matching over arXiv and
+          Crossref. The working product is a <strong>daily email</strong> that
+          arrives without anyone opening anything, built on accounts, and reading
+          from <strong>sources the user picks themselves</strong>. Three of v1&rsquo;s
+          four stated non-goals &mdash; email delivery, accounts, and scheduling
+          &mdash; are now the core of the product. The honest reason is that v1 had
+          the delivery model backwards: a tool you must remember to open is one more
+          thing to skip, and skipping it was the exact failure the product set out
+          to fix.
+        </p>
+      </div>
 
       <h3>1. Target User &amp; The Job to Be Done</h3>
       <p>
-        <strong>Who is this for?</strong> PhD candidates who are responsible for
-        knowing what was published in their field this week &mdash; the ones whose
-        advisor opens a meeting with &ldquo;did you see the new paper?&rdquo;
+        <strong>Who is this for?</strong> People who are accountable for knowing
+        what happened in their field, and who currently learn it late. The product
+        asks each user which of three kinds of person they are, and the onboarding
+        questions change accordingly:
       </p>
+      <ul>
+        <li><strong>Academia</strong> &mdash; professor, PhD student, postdoc or
+          researcher. Asked for their level, field of research, and a short
+          description of their work. <em>This is the primary user and the one being
+          tested.</em></li>
+        <li><strong>Student</strong> &mdash; asked for degree, school,
+          specializations, and what they want to do after graduating.</li>
+        <li><strong>Working professional</strong> &mdash; asked for seniority,
+          industry, function and future goals.</li>
+      </ul>
       <p>
         <strong>The two researchers testing it:</strong>
       </p>
       <ul>
         <li>
           <strong>Roshni K.</strong> &mdash; 3rd-year PhD at Rutgers New Jersey
-          Medical School, working on vaccine development. Testing <strong>in
-          person</strong> at NJMS this week: she drives, I watch and take notes
-          without coaching her.
+          Medical School, vaccine development. Testing <strong>in person</strong>
+          at NJMS this week: she drives, I watch without coaching her.
         </li>
         <li>
-          <strong>Siddhi P.</strong> &mdash; postdoc at Rutgers NJMS, working on
+          <strong>Siddhi P.</strong> &mdash; postdoc at Rutgers NJMS,
           host&ndash;pathogen interaction. Testing over a <strong>screen-share
-          call</strong>, since the app is still local-only until the Build 5 deploy.
+          call</strong>.
         </li>
       </ul>
       <p>
-        Both are at the same institution and both have the weekly literature problem
-        this product exists for, but they sit at different career stages, which is
-        deliberate: a third-year is still defining a thesis area, while a postdoc has
-        a narrower, fixed set of topics. If the profile works for both, the ranking
-        is not over-fitted to one way of describing a field.
-      </p>
-      <div class="callout callout-warn">
-        <p style="margin:0">
-          <strong>What choosing them already changed in the PRD.</strong> Both work in
-          wet-lab biomedical science. That is <em>not</em> where arXiv publishes &mdash;
-          vaccine development and host&ndash;pathogen work appears in journals and on
-          bioRxiv / medRxiv, which arXiv does not cover. So the open arXiv 429 bug
-          matters far less for these two users than I assumed when I wrote PRD v1, and
-          adding a biomedical preprint source matters far more. Build 2&rsquo;s priority
-          changes accordingly.
-        </p>
-      </div>
-      <p>
-        <strong>The painful &ldquo;Before&rdquo; workflow:</strong> Google Scholar
-        alerts, a few journal table-of-contents emails and an arXiv feed all land in
-        one inbox. They are keyword alerts, so they fire on any paper containing the
-        word, and the student skims dozens of titles to find the two that matter.
-        Most weeks the triage gets skipped, and the paper surfaces later in a meeting
-        instead.
+        Different career stages on purpose: a third-year is still defining a thesis
+        area, a postdoc has a narrow fixed set of topics. Both map to the Academia
+        persona, so the same onboarding has to serve a wide and a narrow reader.
       </p>
       <p>
-        <strong>The &ldquo;After&rdquo; workflow:</strong> Open NewsForMe, click once,
-        and get a ranked briefing of up to eight papers from the chosen window. Each
-        entry says which of your tracked topics it hit, where it was published, and
-        why you specifically should read it. Mark papers useful or not useful to tune
-        future briefings. Target: under ten minutes, once a week.
+        <strong>The painful &ldquo;Before&rdquo;:</strong> Scholar alerts, journal
+        table-of-contents emails and feeds all land in one inbox. They are keyword
+        alerts, so they fire on anything containing the word. The triage gets
+        skipped, and the paper surfaces later in a meeting instead.
+      </p>
+      <p>
+        <strong>The &ldquo;After&rdquo;:</strong> one short email at a chosen hour,
+        every morning, written from the user&rsquo;s own topics and their own chosen
+        sources. Nothing to open, nothing to remember. Pause or unsubscribe in one
+        click.
       </p>
 
-      <h3>2. Scope &amp; Explicit Non-Goals</h3>
-      <ul>
-        <li>
-          <strong>In scope (the one core workflow):</strong> research profile &rarr;
-          fetch the week&rsquo;s papers from arXiv and Crossref &rarr; de-duplicate
-          &rarr; rank against the profile &rarr; one-line justification per paper
-          &rarr; save the briefing and collect useful / not-useful feedback.
-        </li>
-        <li><strong>Out of scope #1:</strong> Reading or summarising full-text PDFs. The
-          briefing works from titles, abstracts and venue metadata only.</li>
-        <li><strong>Out of scope #2:</strong> Email, Slack or push delivery, and any
-          scheduling or cron. The user opens the app and clicks.</li>
-        <li><strong>Out of scope #3:</strong> Accounts, login and multi-user support.
-          One local profile per install for all six weeks.</li>
-        <li><strong>Out of scope #4:</strong> Citation graphs, author-following,
-          reference management and Zotero/Mendeley export.</li>
-      </ul>
+      <h3>2. The Core Workflow</h3>
+      <p>
+        Sign in is a passwordless email link. There is no password to create, forget
+        or leak. First sign-in goes to a four-step wizard, which saves nothing until
+        the final step:
+      </p>
+      <table class="tbl">
+        <thead><tr><th>Step</th><th>What the user does</th></tr></thead>
+        <tbody>
+          <tr><td><strong>1. About you</strong></td>
+              <td>Pick a persona, then answer that persona&rsquo;s questions. This text
+                  is what every later suggestion is generated from.</td></tr>
+          <tr><td><strong>2. Topics</strong></td>
+              <td>The backend proposes topics from the profile. The user keeps the
+                  ones they want and adds their own. Hard limit of five, enforced in
+                  the database, not just the interface.</td></tr>
+          <tr><td><strong>3. Sources</strong></td>
+              <td>Per topic, a set of domains the user can remove and add to, plus a
+                  shared &ldquo;all topics&rdquo; list. Suggested sources are
+                  pre-filled; the user has the last word. See section 3.</td></tr>
+          <tr><td><strong>4. Delivery</strong></td>
+              <td>Hour of day and timezone, defaulting to the browser&rsquo;s.
+                  Finishing sends a demo brief immediately, so the first email
+                  arrives in about two minutes rather than tomorrow.</td></tr>
+        </tbody>
+      </table>
+      <p>
+        After that the user never has to return. Settings exists for changing topics,
+        sources, delivery time, pausing, and seeing the last ten briefings with their
+        sent-or-failed status. The daily email itself is written and sent by a
+        separate n8n backend that lives outside this repository.
+      </p>
 
-      <h3>3. How It Works Under the Hood &amp; Riskiest Assumption</h3>
+      <h3>3. Sources Are Chosen by the User, Not the App</h3>
+      <p>
+        This is the most important change in v2, and it is a <em>relevance</em>
+        decision rather than a preference setting.
+      </p>
+      <p>
+        v1 hard-coded arXiv and Crossref, and its riskiest assumption was that
+        keyword overlap would stand in for field relevance. Build 1 proved it does
+        not: a structural-biology profile tracking &ldquo;graph neural network&rdquo;
+        was shown papers on traffic forecasting and seizure localisation. Perfect
+        keyword matches, useless to that researcher.
+      </p>
+      <p>
+        Letting the user choose their own domains attacks that problem one stage
+        earlier. If Roshni lists <code>biorxiv.org</code> and
+        <code>pubmed.ncbi.nlm.nih.gov</code>, the pool is already biomedical before
+        any ranking happens. The corpus is filtered by a judgement the user is far
+        better placed to make than a scoring function: <em>which publications do I
+        actually trust in my field?</em>
+      </p>
+      <p>
+        It also retires an engineering problem. v1&rsquo;s open arXiv bug and the plan
+        to add a biomedical preprint source both assumed the app decides where papers
+        come from. It no longer does. A biomedical researcher adds biomedical
+        sources; a fintech PM adds fintech ones. No code change per field.
+      </p>
+      <p>
+        <strong>Mechanics.</strong> Anything typed is normalised to a bare lowercase
+        domain, so <code>https://www.Reuters.com/world/us</code> becomes
+        <code>reuters.com</code>; anything that is not a domain is rejected. Sources
+        attach to one topic or to all of them. Reuters and AP are always included, so
+        a brief is never empty even if every chosen source goes quiet.
+      </p>
       <div class="callout">
         <p style="margin:0">
-          <strong>Riskiest assumption:</strong> that keyword overlap is a good enough
-          proxy for &ldquo;this paper is relevant to my dissertation.&rdquo;
-          <strong>Build 1 says it is not.</strong> A structural-biology profile
-          tracking <em>graph neural network</em> was shown GNN papers about traffic
-          forecasting, seizure localisation and aerodynamics. They match the phrase
-          exactly and are useless to that researcher. Literal matching cannot see
-          field context. This is the single thing that decides whether the product
-          works, and it is what the model-review layer exists to fix.
-        </p>
-      </div>
-      <p>
-        <strong>Architecture:</strong>
-        research profile (SQLite) &rarr; FastAPI backend &rarr; arXiv Atom API +
-        Crossref REST API (both free, no key) &rarr; de-duplication by DOI and title
-        &rarr; deterministic keyword / venue / recency scoring &rarr;
-        <em>optional</em> OpenRouter model pass that re-ranks the shortlist, drops
-        false matches and writes the &ldquo;Why you&rdquo; line &rarr; briefing saved
-        to SQLite and rendered server-side.
-      </p>
-      <p>
-        <strong>Deliberate design decision:</strong> the model layer is optional, not
-        load-bearing. If there is no API key, the call fails, or the model returns
-        unparseable output, the app keeps the deterministic ranking and the
-        keyword-derived explanations. A briefing is never blocked on a model. Every
-        screenshot above was produced with no model key at all.
-      </p>
-
-      <div class="callout callout-warn">
-        <p style="margin:0 0 8px">
-          <strong>Planned change &mdash; rebuilding the stack on Lovable.</strong>
-          I want to move the tech stack to <a href="https://lovable.dev">Lovable</a>
-          rather than keep hand-rolling the FastAPI + Jinja front end. A prototype is
-          already running at <a href="https://newsforme.fyi">newsforme.fyi</a>.
-        </p>
-        <p style="margin:0" class="meta">
-          The reason is where my time goes. The parts of this product that are
-          actually hard &mdash; relevance ranking, de-duplication, tolerating dirty
-          feed data &mdash; live in <code>app/ranking.py</code> and
-          <code>app/sources.py</code>, and none of that is UI work. Hand-building
-          screens buys nothing I can defend to a sponsor. The open question for Build
-          2 is whether the ranking and source logic can move across intact, or whether
-          it has to be re-implemented; if it does, that is a real cost to weigh
-          against the time saved on the interface.
+          <strong>The new risk this creates.</strong> Relevance now depends on the
+          user&rsquo;s own list. Someone who picks three niche blogs gets a thin brief
+          and blames the product. Choosing a domain is also not the same as being
+          able to read it: paywalls, robots rules and script-heavy pages all stand
+          between a chosen source and a usable summary. <strong>The riskiest
+          assumption in v2 is that the pipeline can reliably fetch and summarise
+          whatever domains a user names.</strong> Build 2 tests it the blunt way, by
+          putting the real sources Roshni and Siddhi pick into the pipeline and
+          checking what comes back.
         </p>
       </div>
 
-      <h3>4. Unit Economics &amp; Analytics Snapshot</h3>
+      <h3>4. Scope &amp; Explicit Non-Goals</h3>
+      <ul>
+        <li><strong>In scope:</strong> sign-up, persona-based onboarding, topics,
+          user-chosen sources, delivery scheduling, pause and unsubscribe, and the
+          daily email itself.</li>
+        <li><strong>Out of scope #1:</strong> reading full-text PDFs. The brief works
+          from what is publicly readable at the source.</li>
+        <li><strong>Out of scope #2:</strong> a reading interface. There is no feed,
+          no archive to browse, no mobile app. The email is the product; settings is
+          the only screen that matters after onboarding.</li>
+        <li><strong>Out of scope #3:</strong> social features. No sharing, no
+          following other users, no comments.</li>
+        <li><strong>Out of scope #4:</strong> payments. Free for the course.</li>
+      </ul>
+      <p class="meta">
+        Dropped from v1&rsquo;s non-goals because they are now core: email delivery,
+        accounts and multi-user support, and scheduling.
+      </p>
+
+      <h3>5. Architecture &amp; Where It Can Break</h3>
+      <p>
+        <strong>Beta (live at <a href="https://newsforme.fyi">newsforme.fyi</a>):</strong>
+        TanStack Start and React, built with Lovable, deployed on Cloudflare Workers.
+        Supabase holds auth and four tables &mdash; profiles, topics, sources, and a
+        read-only briefings log &mdash; with row level security so a user can only
+        ever see their own rows. An n8n backend does the writing and sending, and is
+        also what suggests topics and sources during onboarding.
+      </p>
+      <p>
+        <strong>Build 1 prototype (<code>app/</code> in this repo):</strong> the
+        Python ranking and feed-parsing work, with 51 tests. Still the only place
+        where relevance scoring is written down and tested. Whether that logic moves
+        into the live pipeline or gets replaced by the n8n workflow is the open
+        question for Build 3.
+      </p>
+      <p><strong>Failure modes worth naming:</strong></p>
+      <ul>
+        <li><strong>A daily email is a daily chance to annoy.</strong> The north-star
+          metric counts briefings delivered, but delivered is not read. Unsubscribes
+          are the honest signal and are what Build 4 should measure.</li>
+        <li><strong>The pipeline is a single point of failure.</strong> If n8n fails
+          at 8am, the user gets nothing and may not notice the product exists. The
+          briefings table records failures, so this is at least visible.</li>
+        <li><strong>Publishable key safety depends entirely on row level security.</strong>
+          The Supabase key ships in browser code by design. If RLS were ever off, that
+          key would expose other users&rsquo; data. Verifying it is a Build 5 launch-ops
+          item.</li>
+      </ul>
+
+      <h3>6. Unit Economics &amp; Analytics Snapshot</h3>
       <div class="grid-2">
         <div class="stat-box">
-          <div class="stat-label">Cumulative Build Spend</div>
+          <div class="stat-label">Build 1 Spend (verified)</div>
           <div class="stat-value">$0.00</div>
         </div>
         <div class="stat-box">
-          <div class="stat-label">Est. Cost Per Briefing</div>
-          <div class="stat-value">~$0.002</div>
+          <div class="stat-label">Beta Stack Cost</div>
+          <div class="stat-value">Totalled in Build 2</div>
         </div>
         <div class="stat-box">
           <div class="stat-label">User Evidence</div>
@@ -361,11 +444,16 @@
         </div>
       </div>
       <p class="meta">
-        Build 1 spent $0.00 on inference: both paper sources are free and keyless, and
-        zero model calls were made. The per-briefing estimate is for Build 2, when the
-        model reviews a 12-paper shortlist: roughly 6k input + 1k output tokens on a
-        cheap model. Hosting is $0 while the app is local.
+        Build 1 genuinely cost $0.00: arXiv and Crossref are free and keyless, and no
+        model calls were made. The beta changes the cost shape entirely, because the
+        expensive unit is now <em>per email per subscriber per day</em> rather than
+        per button press: n8n execution, model tokens to write each brief, and email
+        sending, against Supabase and Cloudflare free tiers. That is a recurring cost
+        that grows with subscribers even when nobody opens anything, which makes it
+        the number the sponsor memo will turn on. Build 2 totals it from real
+        invoices rather than estimates.
       </p>
+
     </section>
 
     <!-- WEEKLY BUILD LOG -->
@@ -461,17 +549,20 @@
       <div class="log-entry">
         <h3>Build 2 &middot; Smallest Local Version &amp; PostHog (Due Nov 16)</h3>
         <ul>
-          <li><strong>Planned, re-ordered now that the two test users are known:</strong>
-            (1) add a biomedical preprint source (bioRxiv / medRxiv, or Europe PMC)
-            &mdash; both testers work in wet-lab biomedical science, which arXiv does
-            not cover, so this now outranks the arXiv 429 bug that was previously the
-            top item; (2) turn on the OpenRouter review layer
-            and measure whether it actually kills the off-field matches, which is the
-            riskiest assumption; (3) install PostHog on this page and in the app and
-            verify events; (4) evaluate moving the stack to Lovable &mdash; prototype
-            at <a href="https://newsforme.fyi">newsforme.fyi</a> &mdash; and decide
-            whether the ranking and source logic ports across or gets rewritten;
-            (5) PRD v2.</li>
+          <li><strong>Planned, re-scoped around the shipped beta:</strong>
+            (1) test the v2 riskiest assumption &mdash; put the real domains Roshni
+            and Siddhi choose through the pipeline and measure what fraction produce
+            a usable summary, since paywalls and script-heavy pages are the obvious
+            failure; (2) total the real running cost of the beta stack (n8n, model
+            tokens, email sending) and replace the estimate in section 6;
+            (3) install PostHog on this page and in the beta and verify events.</li>
+          <li><strong>Already done this week:</strong> the stack move is no longer a
+            question &mdash; the beta is live on Lovable + Supabase + Cloudflare at
+            <a href="https://newsforme.fyi">newsforme.fyi</a> and mirrors into
+            <code>beta/</code> automatically. PRD v2 above is rewritten around the
+            product as it actually works. What did <em>not</em> get decided is
+            whether the Build 1 ranking logic moves into the live pipeline or is
+            replaced by the n8n workflow; that slips to Build 3.</li>
           <li><strong>What broke / changed in PRD:</strong> [Fill in]</li>
           <li><strong>Cost &amp; time this week:</strong> $[0.00] &middot; [0] hours</li>
         </ul>
