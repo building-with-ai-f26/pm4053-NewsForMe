@@ -507,7 +507,7 @@
         </div>
         <div class="stat-box">
           <div class="stat-label">User Evidence</div>
-          <div class="stat-value">PostHog lands Build 2</div>
+          <div class="stat-value">PostHog live &middot; 0 outside users</div>
         </div>
         <div class="stat-box">
           <div class="stat-label">Sponsor Call (Week 6)</div>
@@ -523,6 +523,87 @@
         that grows with subscribers even when nobody opens anything, which makes it
         the number the sponsor memo will turn on. Build 2 totals it from real
         invoices rather than estimates.
+      </p>
+
+      <h4>Analytics snapshot &mdash; PostHog, 16 Nov 2026</h4>
+      <p>
+        PostHog is live on <a href="https://newsforme.fyi">newsforme.fyi</a> and
+        verified capturing. It is wired in through the React SDK, reading its project
+        token from the environment: if the token is missing the provider is never
+        mounted, so the public mirror carries placeholders only and a developer
+        checkout sends nothing. Exception capture is on, and model calls from the
+        brief pipeline are traced as <code>$ai_generation</code>.
+      </p>
+      <table class="tbl">
+        <thead><tr><th>Custom event</th><th>What it records</th></tr></thead>
+        <tbody>
+          <tr><td><code>magic_link_requested</code></td>
+              <td>A sign-in email was requested.</td></tr>
+          <tr><td><code>authentication_completed</code></td>
+              <td>Sign-in succeeded, tagged <code>email_code</code> or <code>email_link</code>.</td></tr>
+          <tr><td><code>onboarding_completed</code></td>
+              <td>Topic count, per-topic source count, all-topics source count, and whether a demo brief was sent.</td></tr>
+          <tr><td><code>settings_saved</code></td>
+              <td>The same three counts, plus whether delivery is active.</td></tr>
+          <tr><td><code>email_unsubscribed</code> / <code>email_resubscribed</code></td>
+              <td>Delivery paused or resumed.</td></tr>
+          <tr><td><code>account_deleted</code></td>
+              <td>The user deleted everything.</td></tr>
+          <tr><td><code>$ai_generation</code></td>
+              <td>Model call traces from the brief pipeline.</td></tr>
+        </tbody>
+      </table>
+      <p>
+        <strong>What the data shows so far: nothing about users.</strong> Every event
+        in the project is from my own browser &mdash; one identified person, one
+        sign-in, one pass through onboarding. Autocapture, pageviews, page leaves and
+        web vitals are all firing, which proves the pipe works and proves nothing
+        else. The &ldquo;filter out internal and test users&rdquo; toggle is still
+        off, so the first genuine session will land in the same bucket as my own
+        testing. Turning it on is the first thing to do before Roshni and Siddhi sit
+        down with this, or their sessions will be indistinguishable from mine.
+      </p>
+
+      <div class="callout callout-warn">
+        <p style="margin:0 0 8px"><strong>The analytics inherited the
+          source-truncation bug.</strong></p>
+        <p style="margin:0">
+          <code>onboarding_completed</code> and <code>settings_saved</code> both send
+          <code>selected_source_count</code>, computed in the browser from what the
+          user picked and captured <em>after</em> the save returns. The save function
+          silently truncates at 12 per topic and 15 overall. So a user who chooses
+          twenty sources sends PostHog the number twenty while the database keeps
+          twelve, and the error runs in the flattering direction. The one metric that
+          measures what section 3 calls this product&rsquo;s core relevance mechanism
+          is currently recording intent rather than storage. Until the truncation is
+          fixed, the gap between PostHog&rsquo;s count and the row count in Supabase
+          is at least a free way to measure how often the bug actually bites.
+        </p>
+      </div>
+
+      <h4>Two privacy disclosures that analytics has broken</h4>
+      <p>
+        Installing PostHog changed what this product does with personal data, and the
+        public privacy page has not caught up:
+      </p>
+      <ul>
+        <li><strong>PostHog is missing from the sub-processor list.</strong> The
+          privacy page names Supabase, n8n, Perplexity and Resend, and is careful
+          enough to state that Perplexity &ldquo;does not receive your email
+          address.&rdquo; PostHog does: on sign-in, <code>identify()</code> sends the
+          account id together with the email address and name as person properties. A
+          page that precise about one vendor cannot quietly omit another.</li>
+        <li><strong>&ldquo;We do not track which links you click&rdquo; now reads
+          wrong.</strong> In context the sentence is about links inside the briefing
+          emails, and in that narrow sense it is still accurate. But autocapture is
+          on, and the live event feed contains entries such as <em>clicked button with
+          text &ldquo;Get started&rdquo;</em>. Readers will take the sentence more
+          broadly than it was meant. It needs to separate what is tracked on the site
+          from what is tracked in the email.</li>
+      </ul>
+      <p class="meta">
+        Neither is an emergency at zero outside users, which is precisely why both are
+        cheap to fix now rather than after launch. Both are Build 3 items.
       </p>
 
     </section>
@@ -634,6 +715,26 @@
             product as it actually works. What did <em>not</em> get decided is
             whether the Build 1 ranking logic moves into the live pipeline or is
             replaced by the n8n workflow; that slips to Build 3.</li>
+          <li><strong>Shipped to the beta on 16 Nov:</strong> a sign-out button in the
+            header, and &ldquo;Profile&rdquo; used everywhere the interface previously
+            said &ldquo;settings&rdquo;. The substantive change is a fix to the end of
+            onboarding. The finish screen used to promise a first brief &ldquo;at 7:00
+            your time&rdquo; without saying <em>which day</em>, so anyone completing
+            onboarding at 6am would expect one within the hour.
+            <code>firstBriefing()</code> now works out the next scheduled send in the
+            user&rsquo;s own timezone and skips it when it falls less than twenty hours
+            away, so the screen says <em>tomorrow</em> or <em>the day after
+            tomorrow</em> and is telling the truth. It converts wall-clock time to UTC
+            through <code>Intl.DateTimeFormat</code> rather than a stored offset, so it
+            survives daylight saving, and it ships with three tests covering the
+            2-hour, 22-hour and under-20-hour cases.</li>
+          <li><strong>PostHog is installed and verified.</strong> Eight custom events
+            plus autocapture, confirmed firing against
+            <a href="https://newsforme.fyi">newsforme.fyi</a> on 16 Nov. The snapshot
+            is in section 6 above, together with what it does <em>not</em> prove and
+            two privacy disclosures that adding analytics has broken.
+            <em>Still outstanding from this week&rsquo;s plan:</em> PostHog on this
+            Product Page, and the real cost total for the beta stack.</li>
           <li>
             <strong>Open bug, found by the security audit:
             sources are silently dropped on save.</strong>
