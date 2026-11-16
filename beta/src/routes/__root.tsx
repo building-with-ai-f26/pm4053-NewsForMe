@@ -8,13 +8,36 @@ import {
   Scripts,
   type ErrorComponentProps,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
+import { PostHogProvider, usePostHog } from "@posthog/react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 import { supabase } from "@/lib/supabase";
+
+const posthogToken = import.meta.env["VITE_PUBLIC_POSTHOG_PROJECT_TOKEN"];
+const posthogHost = import.meta.env["VITE_PUBLIC_POSTHOG_HOST"];
+const posthogConfig =
+  posthogToken && posthogHost ? { token: posthogToken, host: posthogHost } : null;
+
+if (import.meta.env.DEV && typeof window !== "undefined") {
+  if (!posthogToken) {
+    console.error(
+      new Error(
+        "VITE_PUBLIC_POSTHOG_PROJECT_TOKEN variable required by PostHog is missing or un-configured, this causes events to be silently missed. This error stops appearing once VITE_PUBLIC_POSTHOG_PROJECT_TOKEN is configured",
+      ),
+    );
+  }
+  if (!posthogHost) {
+    console.error(
+      new Error(
+        "VITE_PUBLIC_POSTHOG_HOST variable required by PostHog is missing or un-configured, this causes events to be silently missed. This error stops appearing once VITE_PUBLIC_POSTHOG_HOST is configured",
+      ),
+    );
+  }
+}
 
 function NotFoundComponent() {
   return (
@@ -37,9 +60,13 @@ function NotFoundComponent() {
 function ErrorComponent({ error, reset }: ErrorComponentProps) {
   console.error(error);
   const router = useRouter();
+  const posthog = usePostHog();
   useEffect(() => {
+    posthog.captureException(error, {
+      boundary: "tanstack_root_error_component",
+    });
     reportLovableError(error, { boundary: "tanstack_root_error_component" });
-  }, [error]);
+  }, [error, posthog]);
   return (
     <div className="flex min-h-[60vh] items-center justify-center px-4">
       <div className="max-w-md text-center">
@@ -89,17 +116,70 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 });
 
 function RootShell({ children }: { children: ReactNode }) {
+  const app = posthogConfig ? (
+    <PostHogProvider
+      apiKey={posthogConfig.token}
+      options={{
+        api_host: posthogConfig.host,
+        defaults: "2026-08-30",
+        capture_exceptions: true,
+        debug: import.meta.env.DEV,
+        logs: {
+          serviceName: "newsforme-web",
+          environment: import.meta.env.PROD ? "production" : "development",
+        },
+      }}
+    >
+      {children}
+    </PostHogProvider>
+  ) : (
+    children
+  );
+
   return (
     <html lang="en">
       <head>
         <HeadContent />
       </head>
       <body>
-        {children}
+        {app}
         <Scripts />
       </body>
     </html>
   );
+}
+
+function PostHogIdentity() {
+  const posthog = usePostHog();
+  const identifiedUserId = useRef<string | null>(null);
+
+  useEffect(() => {
+    const { data } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_OUT") {
+        identifiedUserId.current = null;
+        posthog.reset();
+        return;
+      }
+
+      if ((event === "INITIAL_SESSION" || event === "SIGNED_IN") && session) {
+        const { user } = session;
+        if (identifiedUserId.current === user.id) return;
+
+        if (identifiedUserId.current) posthog.reset();
+        identifiedUserId.current = user.id;
+
+        const fullName = user.user_metadata["full_name"];
+        posthog.identify(user.id, {
+          email: user.email,
+          ...(typeof fullName === "string" ? { name: fullName } : {}),
+        });
+      }
+    });
+
+    return () => data.subscription.unsubscribe();
+  }, [posthog]);
+
+  return null;
 }
 
 function RootComponent() {
@@ -112,7 +192,7 @@ function RootComponent() {
     return () => data.subscription.unsubscribe();
   }, [router]);
 
-  return (
+  const app = (
     <QueryClientProvider client={queryClient}>
       <div className="flex min-h-screen flex-col">
         <SiteHeader />
@@ -123,5 +203,14 @@ function RootComponent() {
       </div>
       <Toaster position="top-center" />
     </QueryClientProvider>
+  );
+
+  return posthogConfig ? (
+    <>
+      <PostHogIdentity />
+      {app}
+    </>
+  ) : (
+    app
   );
 }

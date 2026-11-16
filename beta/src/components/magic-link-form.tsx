@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { useNavigate } from "@tanstack/react-router";
+import { usePostHog } from "@posthog/react";
 import { Mail } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -10,6 +11,7 @@ import { supabase } from "@/lib/supabase";
 
 export function MagicLinkForm({ cta = "Send my code" }: { cta?: string }) {
   const navigate = useNavigate();
+  const posthog = usePostHog();
   const [email, setEmail] = useState("");
   const [sending, setSending] = useState(false);
   const [sentTo, setSentTo] = useState<string | null>(null);
@@ -27,6 +29,7 @@ export function MagicLinkForm({ cta = "Send my code" }: { cta?: string }) {
     setSending(true);
     try {
       await sendMagicLink(addr);
+      posthog.capture("magic_link_requested");
       setSentTo(addr);
       setCooldown(60);
     } catch (e) {
@@ -48,6 +51,7 @@ export function MagicLinkForm({ cta = "Send my code" }: { cta?: string }) {
     try {
       const { data, error } = await supabase.auth.verifyOtp({ email: sentTo, token, type: "email" });
       if (error || !data.session) throw error ?? new Error("no session");
+      posthog.capture("authentication_completed", { authentication_method: "email_code" });
       const { data: profile } = await supabase
         .from("profiles")
         .select("onboarding_complete")

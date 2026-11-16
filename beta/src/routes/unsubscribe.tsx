@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
+import { usePostHog } from "@posthog/react";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase";
@@ -27,6 +28,7 @@ const isToken = (t?: string) => !!t && /^[0-9a-f-]{36}$/i.test(t);
 
 function Unsubscribe() {
   const { t } = Route.useSearch();
+  const posthog = usePostHog();
   const [state, setState] = useState<State>(isToken(t) ? "ask" : "bad");
   const [hint, setHint] = useState("");
   const [busy, setBusy] = useState(false);
@@ -38,6 +40,7 @@ function Unsubscribe() {
       if (error) throw error;
       const res = data as { ok: boolean; email_hint?: string } | null;
       if (!res?.ok) return setState("bad");
+      posthog.capture(next === "off" ? "email_unsubscribed" : "email_resubscribed");
       setHint(res.email_hint ?? "");
       setState(next);
     } catch {

@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
+import { usePostHog } from "@posthog/react";
 import { Plus, Trash2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { PersonaForm } from "@/components/persona-form";
@@ -56,6 +57,7 @@ function Section({ id, title, children }: { id: string; title: string; children:
 
 function Settings() {
   const { user } = Route.useRouteContext();
+  const posthog = usePostHog();
   const { pause } = Route.useSearch();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -131,6 +133,12 @@ function Settings() {
         timezone: tz,
         is_active: active,
       }, topics, globalSources);
+      posthog.capture("settings_saved", {
+        topic_count: topics.length,
+        selected_source_count: topics.reduce((count, topic) => count + topic.sources.length, 0),
+        global_source_count: globalSources.length,
+        email_delivery_active: active,
+      });
       toast.success("All settings saved.");
     } catch (e) {
       toast.error(friendlyError(e));
@@ -139,7 +147,7 @@ function Settings() {
   }
   async function getSuggestions() {
     setSugLoading(true);
-    try { setSugs(await fetchSuggestions({ mode: "suggest", about: answers.persona ? buildAbout(answers) : about, role: answers.persona ? buildRole(answers) : role })); }
+    try { setSugs(await fetchSuggestions({ mode: "suggest", about: answers.persona ? buildAbout(answers) : about, role: answers.persona ? buildRole(answers) : role }, posthog)); }
     catch { toast.error("We could not load ideas. Try again or type your own."); }
     finally { setSugLoading(false); }
   }
@@ -160,6 +168,7 @@ function Settings() {
     try {
       const { error } = await supabase.rpc("delete_my_account");
       if (error) throw error;
+      posthog.capture("account_deleted");
       await supabase.auth.signOut();
       toast.success("Your account and data are deleted.");
       navigate({ to: "/", replace: true });

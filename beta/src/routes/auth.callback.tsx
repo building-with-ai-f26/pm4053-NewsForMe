@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { usePostHog } from "@posthog/react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase";
 
@@ -18,6 +19,7 @@ export const Route = createFileRoute("/auth/callback")({
 
 function Callback() {
   const navigate = useNavigate();
+  const posthog = usePostHog();
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
@@ -36,6 +38,7 @@ function Callback() {
       }
       if (done) return;
       if (!session) return setFailed(true);
+      posthog.capture("authentication_completed", { authentication_method: "email_link" });
       const { data } = await supabase
         .from("profiles")
         .select("onboarding_complete")
@@ -47,7 +50,7 @@ function Callback() {
     return () => {
       done = true;
     };
-  }, [navigate]);
+  }, [navigate, posthog]);
 
   return (
     <div className="mx-auto max-w-md px-5 py-20 text-center">

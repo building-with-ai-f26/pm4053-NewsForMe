@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from "react";
+import { usePostHog } from "@posthog/react";
 import { CheckCircle2, Plus, RotateCw, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -47,6 +48,7 @@ const STEPS = ["About you", "Topics", "Sources", "Delivery"];
 
 function Onboarding() {
   const { user } = Route.useRouteContext();
+  const posthog = usePostHog();
   const [step, setStep] = useState(0);
   const [fullName, setFullName] = useState("");
   const [answers, setAnswers] = useState<Answers>(emptyAnswers);
@@ -85,7 +87,7 @@ function Onboarding() {
     setSugLoading(true);
     setSugError(false);
     try {
-      const list = await fetchSuggestions({ mode: "suggest", about, role });
+      const list = await fetchSuggestions({ mode: "suggest", about, role }, posthog);
       setSuggestions(list);
       sugFor.current = about + "|" + role;
     } catch {
@@ -109,7 +111,7 @@ function Onboarding() {
     setSrcLoading(true);
     setSrcError(false);
     try {
-      const list = await fetchSuggestions({ mode: "sources", about, role, topics: need.map((t) => t.name) });
+      const list = await fetchSuggestions({ mode: "sources", about, role, topics: need.map((t) => t.name) }, posthog);
       setTopics((prev) =>
         prev.map((t) => {
           if (!t.custom || t.sources.length) return t;
@@ -153,6 +155,12 @@ function Onboarding() {
       const c = await supabase.from("profiles").update({ onboarding_complete: true }).eq("id", user.id);
       if (c.error) throw c.error;
       const demo = await sendDemo();
+      posthog.capture("onboarding_completed", {
+        topic_count: topics.length,
+        selected_source_count: topics.reduce((count, topic) => count + topic.sources.length, 0),
+        global_source_count: globalSources.length,
+        demo_brief_requested: demo,
+      });
       setDone({ demo });
     } catch (e) {
       toast.error(friendlyError(e));
