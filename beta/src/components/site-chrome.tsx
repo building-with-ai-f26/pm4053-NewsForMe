@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
@@ -29,6 +29,11 @@ export function LogoMark({ className = "h-8 w-8 text-lg" }: { className?: string
 
 export function SiteHeader() {
   const signedIn = useSignedIn();
+  const navigate = useNavigate();
+  async function signOut() {
+    await supabase.auth.signOut();
+    navigate({ to: "/" });
+  }
   return (
     <header className="sticky top-0 z-20 border-b border-border bg-background/95 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-5">
@@ -37,9 +42,21 @@ export function SiteHeader() {
           NewsForMe
         </Link>
         {signedIn === null ? null : signedIn ? (
-          <Link to="/settings" className="text-sm font-semibold text-foreground hover:text-link">
-            Profile
-          </Link>
+          <div className="flex items-center gap-4">
+            <button
+              type="button"
+              onClick={signOut}
+              className="text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground"
+            >
+              Sign out
+            </button>
+            <Link
+              to="/settings"
+              className="inline-flex h-9 items-center rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary-hover"
+            >
+              Profile
+            </Link>
+          </div>
         ) : (
           <div className="flex items-center gap-4">
             <Link to="/login" className="text-sm font-semibold text-foreground hover:text-link">

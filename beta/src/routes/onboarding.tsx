@@ -26,7 +26,7 @@ import {
   type DraftTopic,
   type Suggestion,
 } from "@/lib/api";
-import { MAX_TOPICS, formatHour, friendlyError } from "@/lib/domain";
+import { MAX_TOPICS, firstBriefing, formatHour, friendlyError } from "@/lib/domain";
 
 export const Route = createFileRoute("/onboarding")({
   ssr: false,
@@ -170,17 +170,25 @@ function Onboarding() {
   }
 
   if (done) {
+    const first = firstBriefing(hour, tz);
     return (
       <div className="mx-auto max-w-lg px-5 py-20 text-center">
         <CheckCircle2 className="mx-auto h-12 w-12 text-success" />
-        <h1 className="mt-4 text-4xl font-semibold">You are all set</h1>
+        <h1 className="mt-4 text-4xl font-semibold">You're all set.</h1>
+        {done.demo && (
+          <p className="mt-4 text-lg text-muted-foreground">
+            A sample briefing is on its way to your inbox — give it about 2 minutes.
+          </p>
+        )}
         <p className="mt-4 text-lg text-muted-foreground">
-          {done.demo
-            ? "Your first brief is on its way. Check your inbox in about 2 minutes."
-            : `Your first brief will arrive at ${formatHour(hour)} your time.`}
+          Your first daily briefing arrives{" "}
+          <strong className="text-foreground">
+            {first.day === "tomorrow" ? "tomorrow" : "the day after tomorrow"} at {formatHour(hour)}
+          </strong>
+          .
         </p>
         <Button asChild className="mt-8" size="lg">
-          <Link to="/settings">Go to settings</Link>
+          <Link to="/settings">Go to Profile</Link>
         </Button>
       </div>
     );

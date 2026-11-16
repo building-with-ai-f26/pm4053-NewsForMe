@@ -90,10 +90,10 @@ function Unsubscribe() {
         <>
           <h1 className="text-3xl font-semibold">This link did not work</h1>
           <p className="mt-4 text-muted-foreground">
-            Use the unsubscribe link in your latest email, or sign in to pause emails in settings.
+            Use the unsubscribe link in your latest email, or sign in to pause emails in your profile.
           </p>
           <Button asChild className="mt-8" variant="outline">
-            <Link to="/settings" search={{ pause: "1" }}>Go to settings</Link>
+            <Link to="/settings" search={{ pause: "1" }}>Go to Profile</Link>
           </Button>
         </>
       )}

@@ -33,9 +33,9 @@ export const Route = createFileRoute("/settings")({
   beforeLoad: requireUser,
   head: () => ({
     meta: [
-      { title: "Settings | NewsForMe" },
+      { title: "Profile | NewsForMe" },
       { name: "description", content: "Change your topics, sources and delivery time." },
-      { property: "og:title", content: "Settings | NewsForMe" },
+      { property: "og:title", content: "Profile | NewsForMe" },
       { property: "og:description", content: "Change your topics, sources and delivery time." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -139,7 +139,7 @@ function Settings() {
         global_source_count: globalSources.length,
         email_delivery_active: active,
       });
-      toast.success("All settings saved.");
+      toast.success("All changes saved.");
     } catch (e) {
       toast.error(friendlyError(e));
       toast.error("Some changes may have saved. Your edits are still here. Please save again.");
@@ -178,10 +178,10 @@ function Settings() {
     }
   }
 
-  if (loading) return <div className="mx-auto max-w-3xl px-5 py-12"><LoadingNote text="Loading your settings..." /></div>;
+  if (loading) return <div className="mx-auto max-w-3xl px-5 py-12"><LoadingNote text="Loading your profile..." /></div>;
   if (loadError) return (
     <div className="mx-auto max-w-3xl px-5 py-16 text-center">
-      <p className="text-muted-foreground">We could not load your settings.</p>
+      <p className="text-muted-foreground">We could not load your profile.</p>
       <Button className="mt-4" onClick={load}>Try again</Button>
     </div>
   );
@@ -189,12 +189,12 @@ function Settings() {
   return (
     <div className="mx-auto max-w-3xl space-y-6 px-5 py-10">
       <div className="flex items-center justify-between">
-        <h1 className="text-4xl font-semibold">Settings</h1>
+        <h1 className="text-4xl font-semibold">Profile</h1>
         <Button variant="outline" onClick={signOut}>Sign out</Button>
       </div>
 
       <fieldset disabled={saving} aria-busy={saving} className="min-w-0 space-y-6">
-      <Section id="profile" title="Profile">
+      <Section id="profile" title="Your details">
         <div className="space-y-2"><Label htmlFor="n">Full name</Label><Input id="n" maxLength={100} value={fullName} onChange={(e) => setFullName(e.target.value)} /></div>
         {!answers.persona && about.trim() && (
           <p className="rounded-lg border border-border bg-muted/40 p-3 text-sm text-muted-foreground">

@@ -71,7 +71,7 @@ function Privacy() {
         <p>A few trusted companies process your data on our behalf. Each only gets what it needs.</p>
         <ul className="list-disc space-y-2 pl-5">
           <li>
-            <strong>Supabase</strong> stores your account and settings, on servers in the United
+            <strong>Supabase</strong> stores your account and profile, on servers in the United
             States.
           </li>
           <li>
@@ -94,15 +94,15 @@ function Privacy() {
         <ul className="list-disc space-y-2 pl-5">
           <li>
             <strong>Stop emails:</strong> use the Unsubscribe link at the bottom of any brief. You
-            can also pause in <Link to="/settings" className="text-link underline underline-offset-2">settings</Link>.
+            can also pause in <Link to="/settings" className="text-link underline underline-offset-2">your profile</Link>.
           </li>
           <li>
-            <strong>Change your details:</strong> edit your profile, topics, sources, or time in
-            settings at any time.
+            <strong>Change your details:</strong> edit your topics, sources, or delivery time in
+            your profile at any time.
           </li>
           <li>
             <strong>Delete everything:</strong> use "Delete my account" at the bottom of{" "}
-            <Link to="/settings" className="text-link underline underline-offset-2">settings</Link>. It removes your
+            <Link to="/settings" className="text-link underline underline-offset-2">your profile</Link>. It removes your
             account and all your data from our database right away.
           </li>
           <li>
@@ -114,8 +114,8 @@ function Privacy() {
       <Section title="How long we keep it">
         <p>
           We keep your account until you delete it. Links from past briefs are deleted after 45
-          days. If you unsubscribe, we keep your settings so you can turn emails back on. Delete your
-          account in settings if you want them gone too.
+          days. If you unsubscribe, we keep your details so you can turn emails back on. Delete your
+          account in your profile if you want them gone too.
         </p>
       </Section>
 

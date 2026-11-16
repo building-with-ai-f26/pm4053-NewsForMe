@@ -19,6 +19,36 @@ export function formatHour(h: number): string {
   return `${hr}:00 ${suffix}`;
 }
 
+const HOUR_MS = 3_600_000;
+export const MIN_DEMO_GAP_HOURS = 20;
+
+function tzDateParts(date: Date, timeZone: string) {
+  const parts = new Intl.DateTimeFormat("en-US", { timeZone, year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(date);
+  const get = (t: string) => Number(parts.find((p) => p.type === t)?.value);
+  return { y: get("year"), m: get("month"), d: get("day") };
+}
+
+function wallToUtc(y: number, m: number, d: number, h: number, timeZone: string): Date {
+  const guess = new Date(Date.UTC(y, m - 1, d, h));
+  const parts = new Intl.DateTimeFormat("en-US", { timeZone, hour12: false, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" }).formatToParts(guess);
+  const get = (t: string) => Number(parts.find((p) => p.type === t)?.value);
+  const wallAtGuess = Date.UTC(get("year"), get("month") - 1, get("day"), get("hour") % 24, get("minute"), get("second"));
+  return new Date(guess.getTime() + (guess.getTime() - wallAtGuess));
+}
+
+/** When the first real briefing arrives: the next scheduled send, skipped if it is less than 20 hours away. */
+export function firstBriefing(sendHour: number, timeZone: string, now = new Date()): { date: Date; day: "tomorrow" | "dayAfter" } {
+  const { y, m, d } = tzDateParts(now, timeZone);
+  let next = wallToUtc(y, m, d, sendHour, timeZone);
+  if (next.getTime() <= now.getTime()) next = new Date(next.getTime() + 24 * HOUR_MS);
+  let day: "tomorrow" | "dayAfter" = "tomorrow";
+  if (next.getTime() - now.getTime() < MIN_DEMO_GAP_HOURS * HOUR_MS) {
+    next = new Date(next.getTime() + 24 * HOUR_MS);
+    day = "dayAfter";
+  }
+  return { date: next, day };
+}
+
 export function friendlyError(err: unknown): string {
   const msg = (err as { message?: string })?.message ?? String(err ?? "");
   const m = msg.toLowerCase();
