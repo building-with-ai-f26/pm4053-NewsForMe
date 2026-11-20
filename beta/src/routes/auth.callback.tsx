@@ -44,7 +44,7 @@ function Callback() {
         .select("onboarding_complete")
         .eq("id", session.user.id)
         .maybeSingle();
-      navigate({ to: data?.onboarding_complete ? "/settings" : "/onboarding", replace: true });
+      navigate({ to: data?.onboarding_complete ? "/" : "/onboarding", replace: true });
     }
     finish();
     return () => {

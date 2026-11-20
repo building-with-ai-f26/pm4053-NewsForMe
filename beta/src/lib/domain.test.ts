@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { cleanDomain, firstBriefing, formatHour } from "./domain";
+import { cleanDomain, firstBriefing, formatHour, parseTopStories } from "./domain";
 
 describe("cleanDomain", () => {
   it("strips protocol, www and path, and lowercases", () => {
@@ -20,6 +20,29 @@ describe("formatHour", () => {
     expect(formatHour(8)).toBe("8:00 AM");
     expect(formatHour(12)).toBe("12:00 PM");
     expect(formatHour(19)).toBe("7:00 PM");
+  });
+});
+
+describe("parseTopStories", () => {
+  it("returns an empty list for anything that is not an array", () => {
+    expect(parseTopStories(null)).toEqual([]);
+    expect(parseTopStories("news")).toEqual([]);
+    expect(parseTopStories(undefined)).toEqual([]);
+  });
+  it("keeps stories with a title and drops the rest", () => {
+    const stories = parseTopStories([
+      { topic: "AI", title: "New rules for AI models", summary: "What changed.", url: "https://reuters.com/a", why_it_matters: "It sets the rules your product must follow." },
+      { topic: "Fintech", title: "   ", summary: "No title." },
+      "not an object",
+    ]);
+    expect(stories).toEqual([
+      { topic: "AI", title: "New rules for AI models", summary: "What changed.", url: "https://reuters.com/a", why_it_matters: "It sets the rules your product must follow." },
+    ]);
+  });
+  it("fills missing fields with empty strings and caps at 10 stories", () => {
+    const stories = parseTopStories(Array.from({ length: 12 }, (_, i) => ({ title: `Story ${i + 1}` })));
+    expect(stories).toHaveLength(10);
+    expect(stories[0]).toEqual({ topic: "", title: "Story 1", summary: "", url: "", why_it_matters: "" });
   });
 });
 

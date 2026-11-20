@@ -49,6 +49,31 @@ export function firstBriefing(sendHour: number, timeZone: string, now = new Date
   return { date: next, day };
 }
 
+export type TopStory = { topic: string; title: string; summary: string; url: string; why_it_matters: string };
+
+export const MAX_TOP_STORIES = 10;
+
+/** Turn the top_stories JSON saved by the email backend into clean stories. Drops entries without a title. */
+export function parseTopStories(raw: unknown): TopStory[] {
+  if (!Array.isArray(raw)) return [];
+  const stories: TopStory[] = [];
+  for (const item of raw) {
+    if (!item || typeof item !== "object") continue;
+    const o = item as Record<string, unknown>;
+    const title = String(o["title"] ?? "").trim().slice(0, 200);
+    if (!title) continue;
+    stories.push({
+      topic: String(o["topic"] ?? "").trim().slice(0, 80),
+      title,
+      summary: String(o["summary"] ?? "").trim().slice(0, 600),
+      url: String(o["url"] ?? "").trim().slice(0, 500),
+      why_it_matters: String(o["why_it_matters"] ?? "").trim().slice(0, 600),
+    });
+    if (stories.length >= MAX_TOP_STORIES) break;
+  }
+  return stories;
+}
+
 export function friendlyError(err: unknown): string {
   const msg = (err as { message?: string })?.message ?? String(err ?? "");
   const m = msg.toLowerCase();

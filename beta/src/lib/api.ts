@@ -1,4 +1,5 @@
 import type { LogAttributes } from "posthog-js";
+import { parseTopStories, type TopStory } from "./domain";
 import { DEMO_URL, SUGGEST_URL, supabase } from "./supabase";
 
 export type DraftTopic = {
@@ -140,6 +141,30 @@ export async function fetchSuggestions(
     if (!captured) captureSuggestionGeneration(posthog, body, startedAt, status);
     logSuggestionRequest(posthog, body, startedAt, status, false);
     throw error;
+  }
+}
+
+export type LatestBriefing = { subject: string; createdAt: string; stories: TopStory[] };
+
+/** The signed-in user's most recent briefing with its saved top stories, or null if none exists yet. */
+export async function fetchLatestBriefing(userId: string): Promise<LatestBriefing | null> {
+  try {
+    const { data, error } = await supabase
+      .from("briefings")
+      .select("subject,created_at,top_stories")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (error || !data) return null;
+    return {
+      subject: String(data.subject ?? ""),
+      createdAt: String(data.created_at ?? ""),
+      stories: parseTopStories(data.top_stories),
+    };
+  } catch {
+    // The top_stories column may not exist yet; treat as no stories.
+    return null;
   }
 }
 

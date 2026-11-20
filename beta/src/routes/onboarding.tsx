@@ -187,9 +187,14 @@ function Onboarding() {
           </strong>
           .
         </p>
-        <Button asChild className="mt-8" size="lg">
-          <Link to="/settings">Go to Profile</Link>
-        </Button>
+        <div className="mt-8 flex flex-wrap justify-center gap-3">
+          <Button asChild size="lg">
+            <Link to="/">Go to Homepage</Link>
+          </Button>
+          <Button asChild size="lg" variant="outline">
+            <Link to="/settings">Go back to Profile</Link>
+          </Button>
+        </div>
       </div>
     );
   }
