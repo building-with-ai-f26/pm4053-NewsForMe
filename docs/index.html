@@ -518,8 +518,8 @@
           <div class="stat-value">$0.00</div>
         </div>
         <div class="stat-box">
-          <div class="stat-label">Beta Stack Cost (to date)</div>
-          <div class="stat-value">~$1 &middot; Perplexity only</div>
+          <div class="stat-label">Running Cost</div>
+          <div class="stat-value">~$1.20/day &middot; ~7.7&cent; a brief</div>
         </div>
         <div class="stat-box">
           <div class="stat-label">User Evidence</div>
@@ -552,11 +552,66 @@
         What was true is that only I had visited the <em>website</em> &mdash; see the
         analytics correction below. So that $1.00 bought a week of roughly ten to
         fourteen briefs a day, which puts the marginal cost of a brief at somewhere
-        near a cent, not at the &ldquo;no traffic&rdquo; the sentence implied. It is
-        still too early to publish a cost per subscriber per day, because the week
-        straddled a sharp rise in signups, but the shape is now known and it is
-        cheap.
+        near a cent, not at the &ldquo;no traffic&rdquo; the sentence implied. The
+        cost per subscriber per day, which this page has owed since Build 1, is
+        published immediately below.
       </p>
+
+      <h4>Unit economics, first real numbers &mdash; 23 Nov 2026</h4>
+      <p>
+        Build 3 took <strong>6 hours</strong>, and the service now runs at
+        <strong>about $1.20 a day</strong> &mdash; roughly $8.40 across the week. n8n,
+        Resend, Supabase and Cloudflare are all still inside free tiers, so that is
+        effectively the model bill. Divided by the 109 briefs actually sent between
+        17 and 23 Nov, it gives the figure the sponsor memo turns on:
+      </p>
+      <div class="grid-2">
+        <div class="stat-box">
+          <div class="stat-label">Cost per brief</div>
+          <div class="stat-value">~7.7&cent;</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Per subscriber, per month</div>
+          <div class="stat-value">~$2.31</div>
+        </div>
+      </div>
+      <table class="tbl">
+        <thead><tr><th>Subscribers</th><th>Per day</th><th>Per month</th></tr></thead>
+        <tbody>
+          <tr><td>18 &mdash; today</td><td>$1.39</td><td>$42</td></tr>
+          <tr><td>100</td><td>$7.71</td><td>$231</td></tr>
+          <tr><td>1,000</td><td>$77</td><td>$2,312</td></tr>
+          <tr><td>10,000</td><td>$771</td><td>$23,119</td></tr>
+        </tbody>
+      </table>
+      <p>
+        Straight-line, assuming no volume discount and no free tier left to absorb
+        the growth. At a thousand readers this is a $28,000-a-year product with no
+        revenue, and nothing about the architecture makes that curve bend on its own.
+        Every brief is generated for one person, so there is no shared work to amortise
+        &mdash; which is exactly what makes the product feel personal and exactly what
+        makes it expensive.
+      </p>
+      <div class="callout callout-warn">
+        <p style="margin:0 0 8px"><strong>Cost per brief rose far faster than the
+          number of briefs.</strong></p>
+        <p style="margin:0">
+          Build 2&rsquo;s week: 61 briefs for about $1.00, or 1.6&cent; each.
+          Build 3&rsquo;s week: 109 briefs for about $8.40, or 7.7&cent; each. Volume
+          went up <strong>1.8&times;</strong>; the cost of a single brief went up
+          <strong>4.7&times;</strong>. Something inside the brief got more expensive,
+          and the obvious suspect is this week&rsquo;s own work &mdash; every story
+          now carries a generated <em>Why it matters</em> line and the email template
+          got richer, so there is more model output per brief than there was seven
+          days ago. That is inference from timing, not measurement: the n8n workflow
+          lives outside this repository and its per-step token usage has never been
+          examined. Confirming it is the first cost task of Build 4, because if
+          <em>Why it matters</em> accounts for most of a 4.7&times; rise, then the
+          most distinctive part of the product is also the part that decides whether
+          it can afford to grow. Both figures are approximate, taken from a stated
+          daily rate rather than an invoice.
+        </p>
+      </div>
 
       <h4>Analytics snapshot &mdash; PostHog, 16 Nov 2026</h4>
       <p>
@@ -886,7 +941,10 @@
           <li><strong>Source truncation: still unfixed, now measured.</strong> No user
             has hit it. Widest topic is 11 sources, nothing at 12, four topics one
             source away. Details in section 6.</li>
-          <li><strong>Cost &amp; time this week:</strong> $[0.00] &middot; [0] hours</li>
+          <li><strong>Cost &amp; time this week:</strong> ~$8.40, being 7 days at
+            about $1.20 &middot; 6 hours. That works out at roughly 7.7&cent; a
+            brief, up 4.7&times; per brief on Build 2 while volume rose only
+            1.8&times;. Section 6 has the breakdown and the likely cause.</li>
         </ul>
       </div>
 
