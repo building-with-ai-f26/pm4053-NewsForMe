@@ -229,9 +229,11 @@
     <section id="prd">
       <h2>Living PRD (Product Requirements Document)</h2>
       <p class="meta">
-        <strong>v2</strong> &mdash; 14 Nov 2026. Supersedes v1 (Build 1, 9 Nov).
-        The Build 1 log below is left exactly as written; this section describes
-        the product as it now actually works.
+        <strong>v3</strong> &mdash; 23 Nov 2026. Supersedes v2 (14 Nov) and v1
+        (Build 1, 9 Nov). Two changes: the product grew a signed-in homepage on
+        20 Nov, so it is no longer email-only; and the claim in section 6 that it had
+        no users was wrong and is corrected there with figures from the database. The
+        Build 1 log below is left exactly as written.
       </p>
 
       <div class="callout callout-warn">
@@ -327,10 +329,24 @@
         </tbody>
       </table>
       <p>
-        After that the user never has to return. Settings exists for changing topics,
+        After that the user never had to return &mdash; true until 20 Nov, when
+        signing in started landing on a homepage instead of dropping the user in
+        settings. Settings, now called Profile, still exists for changing topics,
         sources, delivery time, pausing, and seeing the last ten briefings with their
         sent-or-failed status. The daily email itself is written and sent by a
         separate n8n backend that lives outside this repository.
+      </p>
+      <p>
+        <strong>The signed-in homepage, added 20 Nov.</strong> Two tabs. <em>Today&rsquo;s
+        top news</em> reads the stories saved alongside the user&rsquo;s most recent
+        brief and shows each with its <em>Why it matters</em> line; <em>My News Map</em>
+        is locked and labelled coming soon. This changes the shape of the product
+        rather than its skin. v2 argued that the brief should arrive without the user
+        opening anything, and listed that as the reason the weekly-pull model had
+        failed. The homepage is an argument that there is something worth coming back
+        for. Both can be true &mdash; the email remains the product and the page is a
+        place for it to persist &mdash; but it is a real change of position and it is
+        recorded here as one.
       </p>
 
       <h3>3. Sources Are Chosen by the User, Not the App</h3>
@@ -507,7 +523,7 @@
         </div>
         <div class="stat-box">
           <div class="stat-label">User Evidence</div>
-          <div class="stat-value">PostHog live &middot; 0 outside users</div>
+          <div class="stat-value">18 subscribers &middot; 198 briefs sent</div>
         </div>
         <div class="stat-box">
           <div class="stat-label">Sponsor Call (Week 6)</div>
@@ -526,12 +542,20 @@
       <p class="meta">
         <strong>What Build 2 actually cost: about $1.00, all of it Perplexity API
         credits, over 3 hours of building.</strong> That is a real invoice line, not
-        an estimate, but it is not yet the number that matters. n8n, Resend, Supabase
-        and Cloudflare have all stayed inside free tiers, and the only subscriber is
-        me, so roughly a dollar a week is what this costs with essentially no traffic.
-        The figure the sponsor memo needs &mdash; cost per subscriber per day &mdash;
-        cannot be derived from one user, and will not mean anything until Roshni and
-        Siddhi are receiving real briefs daily. Build 3 measures it then.
+        an estimate. n8n, Resend, Supabase and Cloudflare have all stayed inside
+        free tiers.
+      </p>
+      <p class="meta">
+        <strong>Correction, 23 Nov.</strong> This paragraph used to end by saying the
+        only subscriber was me and the stack was carrying essentially no traffic. That
+        was wrong on the day it was written: 14 people received a brief on 16 Nov.
+        What was true is that only I had visited the <em>website</em> &mdash; see the
+        analytics correction below. So that $1.00 bought a week of roughly ten to
+        fourteen briefs a day, which puts the marginal cost of a brief at somewhere
+        near a cent, not at the &ldquo;no traffic&rdquo; the sentence implied. It is
+        still too early to publish a cost per subscriber per day, because the week
+        straddled a sharp rise in signups, but the shape is now known and it is
+        cheap.
       </p>
 
       <h4>Analytics snapshot &mdash; PostHog, 16 Nov 2026</h4>
@@ -562,15 +586,45 @@
               <td>Model call traces from the brief pipeline.</td></tr>
         </tbody>
       </table>
+      <div class="callout callout-warn">
+        <p style="margin:0 0 8px"><strong>Correction, 23 Nov: this section was
+          measuring the wrong surface.</strong></p>
+        <p style="margin:0">
+          A week ago this page said the analytics contained nothing but my own browser
+          and concluded the product had no users. The first half was accurate and the
+          conclusion was wrong. PostHog sees web sessions. NewsForMe is delivered by
+          email, and a subscriber who reads their brief in Gmail never loads the site,
+          so the product can be working for twenty people while the analytics show
+          one. It was. On the day that sentence was published, fourteen people
+          received a brief. The mistake was not in how PostHog was installed; it was
+          that the only instrumented surface was the one almost nobody uses.
+        </p>
+      </div>
+      <table class="tbl">
+        <thead><tr><th>From the database, 23 Nov 2026</th><th></th></tr></thead>
+        <tbody>
+          <tr><td>Accounts created</td>
+              <td>22 &mdash; first on 27 Oct, most recent on 19 Nov</td></tr>
+          <tr><td>Finished onboarding</td>
+              <td>18, so four signed up and stopped partway</td></tr>
+          <tr><td>Delivery switched on</td><td>21</td></tr>
+          <tr><td>Briefs sent, all time</td>
+              <td>198, every one with status <code>sent</code> and not a single failure</td></tr>
+          <tr><td>Briefs per day now</td><td>15 to 17, every day</td></tr>
+          <tr><td>Stored preferences</td><td>78 topics and 666 sources</td></tr>
+        </tbody>
+      </table>
       <p>
-        <strong>What the data shows so far: nothing about users.</strong> Every event
-        in the project is from my own browser &mdash; one identified person, one
-        sign-in, one pass through onboarding. Autocapture, pageviews, page leaves and
-        web vitals are all firing, which proves the pipe works and proves nothing
-        else. The &ldquo;filter out internal and test users&rdquo; toggle is still
-        off, so the first genuine session will land in the same bucket as my own
-        testing. Turning it on is the first thing to do before Roshni and Siddhi sit
-        down with this, or their sessions will be indistinguishable from mine.
+        This is the user evidence the page has been promising since Build 1, and it
+        was in Supabase the whole time. Two things follow. The delivery pipeline is
+        more reliable than expected &mdash; 198 sends, no failures &mdash; which is
+        the single strongest fact this project has. And the funnel has one visible
+        leak already: four of twenty-two accounts never finished onboarding.
+      </p>
+      <p class="meta">
+        PostHog&rsquo;s &ldquo;filter out internal and test users&rdquo; toggle is
+        still off, so my own sessions are still mixed in with everyone else&rsquo;s.
+        That matters more now that there is an everyone else.
       </p>
 
       <div class="callout callout-warn">
@@ -589,6 +643,14 @@
           is at least a free way to measure how often the bug actually bites.
         </p>
       </div>
+      <p class="meta">
+        <strong>Checked against production on 23 Nov: it has not bitten yet.</strong>
+        The widest topic anyone has is 11 sources, and no topic sits at exactly 12,
+        which is what a truncated one would look like. So no user has lost a source so
+        far. Four topics are at 11, one short of the cliff. Note the limit of this
+        check: these counts are what survived the save, so it can only ever detect the
+        bug after someone has already been hit by it.
+      </p>
 
       <h4>Two privacy disclosures that analytics has broken</h4>
       <p>
@@ -787,8 +849,43 @@
       <div class="log-entry">
         <h3>Build 3 &middot; Build.exe: The Core Workflow (Due Nov 23)</h3>
         <ul>
-          <li><strong>What shipped:</strong> [End-to-end workflow working with real inputs + PostHog funnel events]</li>
-          <li><strong>What broke / changed in PRD:</strong> [Fill in]</li>
+          <li><strong>What shipped:</strong> the product grew a second surface.
+            Signing in now lands on a homepage rather than dropping the user into
+            settings. It has two tabs: <em>Today&rsquo;s top news</em>, built from the
+            <code>top_stories</code> JSON saved beside each brief, and a locked
+            <em>My News Map</em> preview. Every story carries its <em>Why it
+            matters</em> line &mdash; the same idea as the Build 1 prototype&rsquo;s
+            &ldquo;Why you&rdquo; line, which has now survived two complete rewrites
+            of this product and is the one piece of it that has never been
+            questioned. Around that: a Home link in the signed-in header, Profile
+            restyled to match, the landing page&rsquo;s sample email brought in line
+            with the real template, and confirmation buttons after signup.</li>
+          <li><strong>The defensive parsing is the part worth keeping.</strong>
+            <code>parseTopStories()</code> treats its own database column as
+            untrusted input: anything that is not an array returns empty, non-object
+            entries are skipped, a story with no title is dropped, every field is
+            truncated to a fixed length, and it stops at ten stories.
+            <code>fetchLatestBriefing()</code> wraps the query and returns null rather
+            than throwing. That is the right instinct, because the thing writing that
+            column is an n8n workflow calling a model, and it will eventually write
+            something malformed.</li>
+          <li><strong>What broke / changed in PRD:</strong> section 6 claimed the
+            product had no users. It was wrong, and how it was wrong is the most
+            useful thing found this week. PostHog measures web sessions; NewsForMe is
+            an email product; the overlap is nearly nil. The database shows 22
+            accounts, 18 through onboarding, and 198 briefs sent with zero failures,
+            over a period when the analytics showed one person &mdash; me. Section 6
+            now carries the real figures, section 2 describes the homepage, and the
+            PRD is at v3.</li>
+          <li><strong>Open, and awkward: the new homepage has no analytics on
+            it.</strong> Not one event. The surface built specifically to bring email
+            subscribers back to the site cannot report whether a single one of them
+            came. Instrumenting the tab switch, the story click and the empty state is
+            the first task of Build 4 &mdash; before any judgement about whether the
+            homepage deserved the week.</li>
+          <li><strong>Source truncation: still unfixed, now measured.</strong> No user
+            has hit it. Widest topic is 11 sources, nothing at 12, four topics one
+            source away. Details in section 6.</li>
           <li><strong>Cost &amp; time this week:</strong> $[0.00] &middot; [0] hours</li>
         </ul>
       </div>
